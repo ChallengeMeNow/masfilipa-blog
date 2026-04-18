@@ -8,7 +8,7 @@
  */
 
 // --- KONFIGURÁCIA ---
-$APPROVE_SECRET  = 'NAHRAD_TENTO_SECRET'; // Rovnaký ako v GitHub Secrets (APPROVE_SECRET)
+$APPROVE_SECRET  = 'masfilipa2025blog!'; // Rovnaký ako v GitHub Secrets (APPROVE_SECRET)
 $GITHUB_REPO     = 'ChallengeMeNow/masfilipa-blog'; // tvoj GitHub repo
 $BLOG_DIR        = __DIR__ . '/blog/';
 $LOG_FILE        = __DIR__ . '/approve_log.txt';
