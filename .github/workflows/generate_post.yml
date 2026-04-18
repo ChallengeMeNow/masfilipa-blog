@@ -1,29 +1,29 @@
 name: Generate Blog Post
 
-on:
+"on":
   schedule:
-    - cron: '0 9 * * 1'
-  workflow_dispatch:
+      - cron: '0 9 * * 1'
+        workflow_dispatch:
 
-jobs:
-  generate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        jobs:
+          generate:
+              runs-on: ubuntu-latest
+                  steps:
+                        - name: Checkout
+                                uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+                                      - name: Set up Python
+                                              uses: actions/setup-python@v5
+                                                      with:
+                                                                python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install anthropic requests
+                                                                      - name: Install dependencies
+                                                                              run: pip install anthropic requests
 
-      - name: Generate and send post
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
-          APPROVE_SECRET: ${{ secrets.APPROVE_SECRET }}
-          AUTHOR_EMAIL: ${{ secrets.AUTHOR_EMAIL }}
-        run: python generate_post.py
+                                                                                    - name: Generate and send post
+                                                                                            env:
+                                                                                                      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+                                                                                                                BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+                                                                                                                          APPROVE_SECRET: ${{ secrets.APPROVE_SECRET }}
+                                                                                                                                    AUTHOR_EMAIL: ${{ secrets.AUTHOR_EMAIL }}
+                                                                                                                                            run: python generate_post.py
