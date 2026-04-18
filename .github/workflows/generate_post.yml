@@ -1,0 +1,20 @@
+name: Generate Blog Post
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install anthropic requests
+      - run: python generate_post.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          APPROVE_SECRET: ${{ secrets.APPROVE_SECRET }}
+          AUTHOR_EMAIL: ${{ secrets.AUTHOR_EMAIL }}
