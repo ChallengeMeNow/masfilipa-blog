@@ -268,7 +268,7 @@ def send_approval_email(article, topic, slug, token, full_html):
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Meta popis:</p>
         <p style="color: #333; font-size: 13px; background: #f8f8f8; padding: 10px; border-radius: 6px; margin: 0 0 20px;">{article['meta_description']}</p>
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Náhľad textu:</p>
-        <div style="color: #333; font-size: 14px; line-height: 1.75; margin: 0 0 28px; border-left: 3px solid #0B3C49; padding-left: 16px;">{article_html}</div>
+        <div style="color: #333; font-size: 14px; line-height: 1.75; margin: 0 0 28px; border-left: 3px solid #0B3C49; padding-left: 16px;">{article_html_clean}</div>
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Súvisiaci e-book:</p>
         <p style="color: #0B3C49; font-weight: bold; margin: 0 0 28px;">{topic['ebook']}</p>
 
