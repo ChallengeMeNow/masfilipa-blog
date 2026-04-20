@@ -26,60 +26,68 @@ APPROVE_ENDPOINT  = f'{BASE_URL}/approve_post.php'
 # Rotujú automaticky, každý týždeň iná téma
 TOPICS = [
     {
-        "title_hint": "Prečo nenávidíš pondelky — a čo s tým",
-        "keywords": "manažment, kariéra, motivácia, pracovná spokojnosť",
+        "title_hint": "Kariérny postup: kedy čakať a kedy odísť",
+        "primary_keyword": "kariérny postup Slovensko",
+        "keywords": "kariérny postup, zmena práce, kariéra, pracovný rast",
         "ebook": "Z kuchyne do riaditeľského kresla",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/a7c14d95-c0d6-4bed-9ed5-5bf1d6ae399c",
-        "angle": "Osobný príbeh o tom, keď práca ubíja. Signály, že si na nesprávnom mieste. Čo robiť ďalej.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
+        "angle": "Osobný príbeh čakania na postup. Konkrétne signály kedy má zmysel čakať a kedy je čas odísť. Kariérny postup nie je automatický — treba ho aktívne riadiť.",
     },
     {
-        "title_hint": "Jeden feedback nestačí — prečo dávame ľuďom príliš veľa šancí",
-        "keywords": "manažment, vyhadzovanie, HR, tím, feedback",
+        "title_hint": "Kedy vyhodiť zamestnanca — a prečo to odkladáme príliš dlho",
+        "primary_keyword": "kedy vyhodiť zamestnanca",
+        "keywords": "vyhadzovanie zamestnanca, manažment tímu, HR rozhodnutia, slabý výkon",
         "ebook": "Krava na Mount Evereste",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/14c5958e-e828-434d-978c-6215a56f1750",
-        "angle": "Prečo odkladáme ťažké rozhodnutia o ľuďoch a čo to stojí firmu. Spomínam vlastnú metódu 3 sedení — kde už pri prvom je takmer jasné ako sa to bude vyvíjať. Detaily metódy sú v ebooku.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
+        "angle": "Prečo odkladáme ťažké rozhodnutia o ľuďoch a čo to stojí firmu. Metóda 3 sedení — kde už pri prvom je takmer jasné ako sa to bude vyvíjať. Detaily v ebooku.",
     },
     {
-        "title_hint": "Zarábaj ALEBO buduj — prečo nemôžeš robiť oboje naraz",
-        "keywords": "time management, priority, manažment, produktivita",
+        "title_hint": "Time management pre manažérov — prečo nestíhate aj keď pracujete 10 hodín",
+        "primary_keyword": "time management manažér",
+        "keywords": "time management, manažment času, produktivita, priority",
         "ebook": "Zarábaj alebo buduj",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/21517d27-782e-408f-a64a-fd9117b39276",
-        "angle": "Systém A vs B. Prečo multitasking nefunguje a ako si vybrať čo je dôležité.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
+        "angle": "Systém zarábaj vs buduj. Prečo nie je problém čas ale priority. Ako rozoznať čo je dôležité od toho čo je len naliehavé.",
     },
     {
-        "title_hint": "Keď nevieš čo ďalej — 5 otázok ktoré ti pomôžu rozhodnúť sa",
-        "keywords": "rozhodovanie, kariéra, životné rozhodnutia, zmena",
+        "title_hint": "Ako sa rozhodnúť keď je každá možnosť zlá",
+        "primary_keyword": "ako sa rozhodnúť v práci",
+        "keywords": "rozhodovanie, ťažké rozhodnutia, kariéra, životné rozhodnutia",
         "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6b76fbb5-62d5-49f7-8971-094b9df78038",
-        "angle": "Praktický systém rozhodovania bez mentora. Ako prestať odkladať ťažké rozhodnutia.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
+        "angle": "Praktický systém rozhodovania z vlastnej skúsenosti. Prečo paralýza rozhodnutím je horšia ako zlé rozhodnutie. Konkrétne otázky ktoré pomáhajú.",
     },
     {
-        "title_hint": "Od pásu k riaditeľskej stoličke — čo som sa naučil na každej zastávke",
-        "keywords": "kariérny rast, seberozvoj, pracovné skúsenosti, postup",
+        "title_hint": "Ako motivovať zamestnancov — čo funguje a čo je len ilúzia",
+        "primary_keyword": "ako motivovať zamestnancov",
+        "keywords": "motivácia zamestnancov, manažment tímu, firemná kultúra, leadership",
+        "ebook": "Krava na Mount Evereste",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
+        "angle": "Rozdiel medzi vonkajšou a vnútornou motiváciou v praxi. Čo manažéri robia zle. Malé veci ktoré fungujú lepšie ako bonusy.",
+    },
+    {
+        "title_hint": "Zmena práce po 30 — strach alebo príležitosť",
+        "primary_keyword": "zmena práce Slovensko",
+        "keywords": "zmena práce, kariéra po tridsiatke, pracovná zmena, nová práca",
         "ebook": "Z kuchyne do riaditeľského kresla",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/a7c14d95-c0d6-4bed-9ed5-5bf1d6ae399c",
-        "angle": "Každá práca dáva niečo. Ako využiť skúsenosti z každej pozície na posun vpred.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
+        "angle": "Osobný príbeh zmeny. Prečo strach zo zmeny je normálny ale nesmie rozhodovať. Praktické kroky ako vyhodnotiť či zmena dáva zmysel.",
     },
     {
-        "title_hint": "Prečo sľuby bez výsledkov sú horšie ako odmietnutie",
-        "keywords": "kariéra, postup, manažment, pracovný vzťah",
-        "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6b76fbb5-62d5-49f7-8971-094b9df78038",
-        "angle": "Štyri roky čakania na postup. Ako rozoznať keď ťa niekto vodí za nos.",
-    },
-    {
-        "title_hint": "Pravidlo dvoch minút — najjednoduchší spôsob ako neprestávať odkladať",
-        "keywords": "produktivita, time management, prokrastinácia, efektivita",
+        "title_hint": "Prokrastinácia v práci — prečo odkladáme dôležité veci",
+        "primary_keyword": "prokrastinácia v práci",
+        "keywords": "prokrastinácia, odkladanie, produktivita, time management",
         "ebook": "Zarábaj alebo buduj",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/21517d27-782e-408f-a64a-fd9117b39276",
-        "angle": "Konkrétna technika na okamžité zvýšenie produktivity. Žiadna teória, len prax.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
+        "angle": "Prokrastinácia nie je lenivosť — je to symptóm. Konkrétne techniky z praxe. Prečo systém funguje lepšie ako vôľa.",
     },
     {
-        "title_hint": "Firma nie je rodina — a prečo je to vlastne správne",
-        "keywords": "firemná kultúra, manažment, pracovný vzťah, tím",
+        "title_hint": "Manažment tímu — 5 chýb ktoré robia aj skúsení manažéri",
+        "primary_keyword": "manažment tímu",
+        "keywords": "manažment tímu, riadenie ľudí, leadership, chyby manažéra",
         "ebook": "Krava na Mount Evereste",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/14c5958e-e828-434d-978c-6215a56f1750",
-        "angle": "Záblesk pravdy o pracovných vzťahoch. Prečo jasnú dohodu treba nastaviť od začiatku.",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
+        "angle": "Konkrétne chyby z vlastnej kariéry. Čo by som robil inak. Prečo dobré úmysly nestačia bez systému.",
     },
 ]
 
@@ -111,13 +119,14 @@ Píšeš po slovensky, priamym osobným štýlom. Žiadna teória, len skúsenos
 
 Napíš blog post na tému: "{topic['title_hint']}"
 Uhol pohľadu: {topic['angle']}
-Kľúčové slová pre SEO: {topic['keywords']}
+Primárne kľúčové slovo (MUSÍ byť v titulku a prvom odstavci): {topic['primary_keyword']}
+Sekundárne kľúčové slová (použi prirodzene v texte 2-3x): {topic['keywords']}
 
 POŽIADAVKY:
-- Dĺžka: 350-450 slov
+- Dĺžka: 400-500 slov
 - Jazyk: slovenčina, hovorový ale profesionálny štýl
-- Štruktúra: krátky úvod (1 odstavec) → hlavný obsah (3-4 odstavce) → záver
-- Použi 2-3 medzititulky (H2)
+- Štruktúra: krátky úvod (1 odstavec, obsahuje primárne kľúčové slovo) → hlavný obsah (3-4 odstavce) → záver
+- Použi 2-3 medzititulky (H2) — jeden H2 musí obsahovať primárne kľúčové slovo alebo jeho variáciu
 - Osobné príbehy a konkrétne príklady, žiadne frázy
 - Dávaj pozor na správnu slovenčinu: napr. "štyri mesiace" nie "štyroch mesiacov" v nominatíve
 - Na konci NIČ o e-booku — to doplníme automaticky
@@ -150,13 +159,37 @@ def build_full_html(article, topic, slug, date_str):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{article['title']} — Máš Filipa?</title>
   <meta name="description" content="{article['meta_description']}">
-  <meta name="author" content="Filip - masfilipa.sk">
+  <meta name="author" content="Filip Sidor">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="{BASE_URL}/blog/{slug}.html">
   <meta property="og:title" content="{article['title']}">
   <meta property="og:description" content="{article['meta_description']}">
   <meta property="og:url" content="{BASE_URL}/blog/{slug}.html">
   <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Máš Filipa?">
+  <meta property="article:author" content="Filip Sidor">
+  <meta property="article:published_time" content="{datetime.now().strftime('%Y-%m-%d')}">
+  <script type="application/ld+json">
+  {{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{article['title']}",
+    "description": "{article['meta_description']}",
+    "author": {{
+      "@type": "Person",
+      "name": "Filip Sidor",
+      "url": "{BASE_URL}"
+    }},
+    "publisher": {{
+      "@type": "Organization",
+      "name": "Máš Filipa?",
+      "url": "{BASE_URL}"
+    }},
+    "datePublished": "{datetime.now().strftime('%Y-%m-%d')}",
+    "url": "{BASE_URL}/blog/{slug}.html",
+    "inLanguage": "sk"
+  }}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
