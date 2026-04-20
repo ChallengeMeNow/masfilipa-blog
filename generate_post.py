@@ -37,7 +37,7 @@ TOPICS = [
         "keywords": "manažment, vyhadzovanie, HR, tím, feedback",
         "ebook": "Krava na Mount Evereste",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/14c5958e-e828-434d-978c-6215a56f1750",
-        "angle": "Metóda 1-2-STOP v praxi. Prečo odkladáme ťažké rozhodnutia a čo to stojí firmu.",
+        "angle": "Prečo odkladáme ťažké rozhodnutia o ľuďoch a čo to stojí firmu. Spomínam vlastnú metódu 3 sedení — kde už pri prvom je takmer jasné ako sa to bude vyvíjať. Detaily metódy sú v ebooku.",
     },
     {
         "title_hint": "Zarábaj ALEBO buduj — prečo nemôžeš robiť oboje naraz",
@@ -119,6 +119,7 @@ POŽIADAVKY:
 - Štruktúra: krátky úvod (1 odstavec) → hlavný obsah (3-4 odstavce) → záver
 - Použi 2-3 medzititulky (H2)
 - Osobné príbehy a konkrétne príklady, žiadne frázy
+- Dávaj pozor na správnu slovenčinu: napr. "štyri mesiace" nie "štyroch mesiacov" v nominatíve
 - Na konci NIČ o e-booku — to doplníme automaticky
 - Vráť VÝHRADNE JSON v tomto formáte, bez markdown, bez backticks:
 
@@ -129,7 +130,7 @@ POŽIADAVKY:
 }}"""
 
     message = client.messages.create(
-        model="claude-opus-4-5",
+        model="claude-3-5-sonnet-20241022",
         max_tokens=2000,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -250,9 +251,11 @@ def send_approval_email(article, topic, slug, token, full_html):
     approve_url = f"{APPROVE_ENDPOINT}?action=approve&slug={slug}&token={token}"
     reject_url  = f"{APPROVE_ENDPOINT}?action=reject&slug={slug}&token={token}"
 
-    # Truncate preview
-    preview_text = re.sub(r'<[^>]+>', '', article['content_html'])[:400] + '...'
+    # Full article text for email
+    preview_text = re.sub(r'<[^>]+>', '', article['content_html'])
 
+    article_html_clean = re.sub(r'<h2([^>]*)>', r'<h3 style="color:#0B3C49;font-size:15px;margin:20px 0 8px;">', article['content_html'])
+    article_html_clean = re.sub(r'</h2>', '</h3>', article_html_clean)
     html_body = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
       <div style="background: #0B3C49; padding: 20px 24px; border-radius: 8px 8px 0 0;">
@@ -265,7 +268,7 @@ def send_approval_email(article, topic, slug, token, full_html):
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Meta popis:</p>
         <p style="color: #333; font-size: 13px; background: #f8f8f8; padding: 10px; border-radius: 6px; margin: 0 0 20px;">{article['meta_description']}</p>
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Náhľad textu:</p>
-        <p style="color: #333; font-size: 14px; line-height: 1.65; margin: 0 0 28px;">{preview_text}</p>
+        <div style="color: #333; font-size: 14px; line-height: 1.75; margin: 0 0 28px; border-left: 3px solid #0B3C49; padding-left: 16px;">{article_html}</div>
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Súvisiaci e-book:</p>
         <p style="color: #0B3C49; font-weight: bold; margin: 0 0 28px;">{topic['ebook']}</p>
 
