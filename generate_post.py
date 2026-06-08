@@ -149,10 +149,11 @@ Primárne kľúčové slovo (MUSÍ byť v titulku a prvom odstavci): {topic['pri
 Sekundárne kľúčové slová (použi prirodzene v texte 2-3x): {topic['keywords']}
 
 POŽIADAVKY:
-- Dĺžka: 400-500 slov
+- Dĺžka: 700-900 slov
 - Jazyk: slovenčina, hovorový ale profesionálny štýl
-- Štruktúra: krátky úvod (1 odstavec, obsahuje primárne kľúčové slovo) → hlavný obsah (3-4 odstavce) → záver
-- Použi 2-3 medzititulky (H2) — jeden H2 musí obsahovať primárne kľúčové slovo alebo jeho variáciu
+- Štruktúra: krátky úvod (1-2 odstavce, obsahuje primárne kľúčové slovo) → hlavný obsah (5-6 odstavcov s konkrétnymi príkladmi) → záver s výzvou k akcii
+- Použi 4-5 medzititulkov (H2) — jeden H2 musí obsahovať primárne kľúčové slovo alebo jeho variáciu
+- Každý odstavec musí priniesť konkrétnu hodnotu — žiadne odstavce "na vyplnenie"
 - Osobné príbehy a konkrétne príklady, žiadne frázy
 - Dávaj pozor na správnu slovenčinu: napr. "štyri mesiace" nie "štyroch mesiacov" v nominatíve
 - Na konci NIČ o e-booku — to doplníme automaticky
@@ -161,7 +162,7 @@ Odošli článok zavolaním nástroja `submit_article`."""
 
     message = client.messages.create(
         model="claude-opus-4-5",
-        max_tokens=2000,
+        max_tokens=3500,
         tools=[SUBMIT_ARTICLE_TOOL],
         tool_choice={"type": "tool", "name": "submit_article"},
         messages=[{"role": "user", "content": prompt}],
@@ -176,8 +177,22 @@ Odošli článok zavolaním nástroja `submit_article`."""
         f"Claude nevrátil tool_use block. Stop reason: {message.stop_reason}"
     )
 
-def build_full_html(article, topic, slug, date_str):
+def build_full_html(article, topic, slug, date_str, related_posts=None):
     """Zostaví kompletný HTML súbor pre blog post."""
+    # Sekcia interného prelinkovania — zobrazí sa len ak existujú iné články
+    if related_posts:
+        related_links = '\n    '.join(
+            f'<a href="{BASE_URL}/blog/{p["slug"]}.html">{p["title"]}</a>'
+            for p in related_posts
+        )
+        related_html = f'''
+  <div class="related-posts">
+    <p class="related-label">Čítaj aj</p>
+    {related_links}
+  </div>'''
+    else:
+        related_html = ''
+
     return f"""<!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -255,6 +270,14 @@ def build_full_html(article, topic, slug, date_str):
     .cta-box a {{ display: inline-block; background: var(--gold); color: var(--teal); font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px; padding: 12px 28px; border-radius: 28px; text-decoration: none; }}
     .cta-box a:hover {{ background: #e8c540; }}
 
+    /* RELATED POSTS */
+    .related-posts {{ margin-top: 48px; padding: 28px; background: var(--off-white); border-radius: 12px; border: 1.5px solid var(--border); }}
+    .related-label {{ font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }}
+    .related-posts a {{ display: block; color: var(--teal); font-weight: 600; text-decoration: none; font-size: 15px; padding: 10px 0; border-bottom: 1px solid var(--border); }}
+    .related-posts a:last-child {{ border-bottom: none; padding-bottom: 0; }}
+    .related-posts a:hover {{ color: var(--gold); }}
+    .related-posts a::after {{ content: ' →'; }}
+
     /* BLOG BACK LINK */
     .back-to-blog {{ margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); font-size: 14px; }}
     .back-to-blog a {{ color: var(--teal); font-weight: 600; text-decoration: none; }}
@@ -278,6 +301,8 @@ def build_full_html(article, topic, slug, date_str):
     {article['content_html']}
   </div>
 
+  {related_html}
+
   <div class="cta-box">
     <p>Súvisí s týmto článkom</p>
     <h3>{topic['ebook']}</h3>
@@ -293,11 +318,24 @@ def build_full_html(article, topic, slug, date_str):
 </div>
 
 <footer>
-  © 2025 Filip &nbsp;·&nbsp; <a href="{BASE_URL}">masfilipa.sk</a>
+  © {datetime.now().year} Filip &nbsp;·&nbsp; <a href="{BASE_URL}">masfilipa.sk</a>
 </footer>
 
 </body>
 </html>"""
+
+def fetch_related_posts(current_slug, count=2):
+    """Stiahne posts.json zo servera a vráti `count` článkov iných ako aktuálny.
+    Pri akomkoľvek zlyhaní vráti prázdny zoznam — generovanie pokračuje bez prelinkenia."""
+    try:
+        resp = requests.get(f'{BASE_URL}/blog/posts.json', timeout=5)
+        resp.raise_for_status()
+        posts = resp.json()
+        related = [p for p in posts if p.get('slug') != current_slug]
+        return related[:count]
+    except Exception as e:
+        print(f"Upozornenie: nepodarilo sa načítať related posts ({e})")
+        return []
 
 def generate_token(slug):
     """Vygeneruje bezpečný token pre schvaľovanie."""
@@ -379,7 +417,11 @@ def main():
     print(f"Slug: {slug}")
     print(f"Token: {token[:8]}...")
 
-    full_html = build_full_html(article, topic, slug, date_str)
+    print("Načítavam súvisiace články...")
+    related_posts = fetch_related_posts(slug)
+    print(f"Súvisiace články: {len(related_posts)}")
+
+    full_html = build_full_html(article, topic, slug, date_str, related_posts)
 
     # Ulož dáta pre PHP webhook (GitHub → server cez approve)
     post_data = {
