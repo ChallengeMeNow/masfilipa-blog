@@ -110,8 +110,34 @@ def slugify(text):
     text = text.strip('-')
     return text[:60]
 
+# Tool schema — Claude API garantuje že tool input bude validný JSON podľa tejto schémy.
+# Nahrádza pôvodný "vráť JSON v prompte" prístup, ktorý padol 8.6.2026 na nevalidnom JSON.
+SUBMIT_ARTICLE_TOOL = {
+    "name": "submit_article",
+    "description": "Odovzdá vygenerovaný blog článok v štruktúrovanej forme.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "description": "Titulok článku, max 60 znakov, obsahuje primárne kľúčové slovo.",
+            },
+            "meta_description": {
+                "type": "string",
+                "description": "Popis pre Google, max 155 znakov, obsahuje kľúčové slovo.",
+            },
+            "content_html": {
+                "type": "string",
+                "description": "HTML obsah článku s <h2> a <p> tagmi. BEZ html/body/head tagov.",
+            },
+        },
+        "required": ["title", "meta_description", "content_html"],
+    },
+}
+
+
 def generate_article(topic):
-    """Zavolá Claude API a vygeneruje článok."""
+    """Zavolá Claude API cez tool use — schema garantuje validný JSON output."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     prompt = f"""Si Filip — technický riaditeľ, konzultant a autor e-bookov na masfilipa.sk.
@@ -130,25 +156,25 @@ POŽIADAVKY:
 - Osobné príbehy a konkrétne príklady, žiadne frázy
 - Dávaj pozor na správnu slovenčinu: napr. "štyri mesiace" nie "štyroch mesiacov" v nominatíve
 - Na konci NIČ o e-booku — to doplníme automaticky
-- Vráť VÝHRADNE JSON v tomto formáte, bez markdown, bez backticks:
 
-{{
-  "title": "Titulok článku (max 60 znakov)",
-  "meta_description": "Popis pre Google (max 155 znakov, obsahuje kľúčové slovo)",
-  "content_html": "HTML obsah článku s <h2>, <p> tagmi. BEZ html/body/head tagov."
-}}"""
+Odošli článok zavolaním nástroja `submit_article`."""
 
     message = client.messages.create(
         model="claude-opus-4-5",
         max_tokens=2000,
-        messages=[{"role": "user", "content": prompt}]
+        tools=[SUBMIT_ARTICLE_TOOL],
+        tool_choice={"type": "tool", "name": "submit_article"},
+        messages=[{"role": "user", "content": prompt}],
     )
 
-    raw = message.content[0].text.strip()
-    # Odstráni prípadné markdown backticks
-    raw = re.sub(r'^```(?:json)?\s*', '', raw)
-    raw = re.sub(r'\s*```$', '', raw)
-    return json.loads(raw)
+    # tool_choice="tool" forsuje model aby zavolal submit_article — block.input je už dict
+    for block in message.content:
+        if block.type == "tool_use" and block.name == "submit_article":
+            return block.input
+
+    raise RuntimeError(
+        f"Claude nevrátil tool_use block. Stop reason: {message.stop_reason}"
+    )
 
 def build_full_html(article, topic, slug, date_str):
     """Zostaví kompletný HTML súbor pre blog post."""
