@@ -1,0 +1,9 @@
+<?php
+/**
+ * Skopíruj tento súbor ako `config.local.php` na server (Websupport, do /web/).
+ * config.local.php je v .gitignore — NIKDY sa necommituje.
+ *
+ * Hodnota musí byť ROVNAKÁ ako GitHub Actions secret APPROVE_SECRET
+ * (používa ho generate_post.py na vygenerovanie approve/reject tokenov).
+ */
+$APPROVE_SECRET = 'sem-vlož-nový-rotovaný-secret';

@@ -8,7 +8,17 @@
  */
 
 // --- KONFIGURÁCIA ---
-$APPROVE_SECRET  = 'masfilipa2025blog!'; // Rovnaký ako v GitHub Secrets (APPROVE_SECRET)
+// APPROVE_SECRET sa NIKDY nehardkóduje (repo je verejný). Načíta sa z prostredia,
+// alebo z gitignorovaného súboru config.local.php umiestneného na serveri.
+// Musí byť ROVNAKÝ ako GitHub Actions secret APPROVE_SECRET (generate_post.py).
+$APPROVE_SECRET = getenv('APPROVE_SECRET') ?: '';
+if ($APPROVE_SECRET === '' && is_file(__DIR__ . '/config.local.php')) {
+    require __DIR__ . '/config.local.php'; // má definovať $APPROVE_SECRET
+}
+if (empty($APPROVE_SECRET)) {
+    http_response_code(500);
+    die('Chyba konfigurácie: chýba APPROVE_SECRET.');
+}
 $GITHUB_REPO     = 'ChallengeMeNow/masfilipa-blog'; // tvoj GitHub repo
 $BLOG_DIR        = __DIR__ . '/blog/';
 $LOG_FILE        = __DIR__ . '/approve_log.txt';
