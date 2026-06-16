@@ -21,6 +21,8 @@ APPROVE_SECRET    = os.environ['APPROVE_SECRET']
 AUTHOR_EMAIL      = os.environ['AUTHOR_EMAIL']
 BASE_URL          = 'https://masfilipa.sk'
 APPROVE_ENDPOINT  = f'{BASE_URL}/approve_post.php'
+FEEDBACK_SLUG     = os.environ.get('FEEDBACK_SLUG', '').strip()
+FEEDBACK_TEXT     = os.environ.get('FEEDBACK_TEXT', '').strip()
 
 # --- TÉMY ČLÁNKOV ---
 # Rotujú automaticky, každý týždeň iná téma
@@ -136,9 +138,18 @@ SUBMIT_ARTICLE_TOOL = {
 }
 
 
-def generate_article(topic):
+def generate_article(topic, feedback=None):
     """Zavolá Claude API cez tool use — schema garantuje validný JSON output."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    feedback_note = ''
+    if feedback:
+        feedback_note = f"""
+
+DÔLEŽITÉ — PREPÍSANÁ VERZIA:
+Predchádzajúca verzia tohto článku bola zamietnutá. Feedback od autora:
+"{feedback}"
+Zohľadni tento feedback. Zachovaj tému a kľúčové slová, ale uprav obsah podľa pokynov vyššie."""
 
     prompt = f"""Si Filip — technický riaditeľ, konzultant a autor e-bookov na masfilipa.sk.
 Píšeš po slovensky, priamym osobným štýlom. Žiadna teória, len skúsenosti z praxe.
@@ -155,8 +166,9 @@ POŽIADAVKY:
 - Použi 4-5 medzititulkov (H2) — jeden H2 musí obsahovať primárne kľúčové slovo alebo jeho variáciu
 - Každý odstavec musí priniesť konkrétnu hodnotu — žiadne odstavce "na vyplnenie"
 - Osobné príbehy a konkrétne príklady, žiadne frázy
+- KĽÚČOVÉ: článok má vzbudiť záujem o e-book, ale NESMIE prezradiť jeho obsah — žiadne konkrétne techniky ani systémy z e-booku, len naznač že existujú
 - Dávaj pozor na správnu slovenčinu: napr. "štyri mesiace" nie "štyroch mesiacov" v nominatíve
-- Na konci NIČ o e-booku — to doplníme automaticky
+- Na konci NIČ o e-booku — to doplníme automaticky{feedback_note}
 
 Odošli článok zavolaním nástroja `submit_article`."""
 
@@ -343,10 +355,11 @@ def generate_token(slug):
     msg = slug.encode()
     return hmac.new(key, msg, hashlib.sha256).hexdigest()[:32]
 
-def send_approval_email(article, topic, slug, token, full_html):
+def send_approval_email(article, topic, slug, token, full_html, feedback=None):
     """Pošle email s náhľadom a tlačidlami Pridať / Zamietnuť."""
-    approve_url = f"{APPROVE_ENDPOINT}?action=approve&slug={slug}&token={token}"
-    reject_url  = f"{APPROVE_ENDPOINT}?action=reject&slug={slug}&token={token}"
+    approve_url   = f"{APPROVE_ENDPOINT}?action=approve&slug={slug}&token={token}"
+    reject_url    = f"{APPROVE_ENDPOINT}?action=reject&slug={slug}&token={token}"
+    feedback_url  = f"{APPROVE_ENDPOINT}?action=feedback&slug={slug}&token={token}"
 
     # Full article text for email
     preview_text = re.sub(r'<[^>]+>', '', article['content_html'])
@@ -369,11 +382,14 @@ def send_approval_email(article, topic, slug, token, full_html):
         <p style="color: #888; font-size: 12px; margin: 0 0 4px;">Súvisiaci e-book:</p>
         <p style="color: #0B3C49; font-weight: bold; margin: 0 0 28px;">{topic['ebook']}</p>
 
-        <div style="text-align: center; display: flex; gap: 16px; justify-content: center;">
-          <a href="{approve_url}" style="background: #0B3C49; color: #fff; padding: 14px 32px; border-radius: 28px; text-decoration: none; font-weight: bold; font-size: 15px;">
+        <div style="text-align: center; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <a href="{approve_url}" style="background: #0B3C49; color: #fff; padding: 14px 28px; border-radius: 28px; text-decoration: none; font-weight: bold; font-size: 15px;">
             ✅ Pridať na web
           </a>
-          <a href="{reject_url}" style="background: #fff; color: #c0392b; padding: 14px 32px; border-radius: 28px; text-decoration: none; font-weight: bold; font-size: 15px; border: 2px solid #c0392b;">
+          <a href="{feedback_url}" style="background: #fff; color: #D4AF37; padding: 14px 28px; border-radius: 28px; text-decoration: none; font-weight: bold; font-size: 15px; border: 2px solid #D4AF37;">
+            💬 Opraviť
+          </a>
+          <a href="{reject_url}" style="background: #fff; color: #c0392b; padding: 14px 28px; border-radius: 28px; text-decoration: none; font-weight: bold; font-size: 15px; border: 2px solid #c0392b;">
             ❌ Zamietnuť
           </a>
         </div>
@@ -403,11 +419,23 @@ def send_approval_email(article, topic, slug, token, full_html):
 
 def main():
     print("=== masfilipa.sk — generátor článkov ===")
-    topic = get_topic_for_week()
+
+    if FEEDBACK_SLUG and FEEDBACK_TEXT:
+        print(f"Feedback mód: regenerujem '{FEEDBACK_SLUG}'")
+        with open('last_post.json', encoding='utf-8') as f:
+            last = json.load(f)
+        topic_index = last.get('topic_index', datetime.now().isocalendar()[1] % len(TOPICS))
+        topic = TOPICS[topic_index]
+        feedback = FEEDBACK_TEXT
+    else:
+        topic = get_topic_for_week()
+        topic_index = datetime.now().isocalendar()[1] % len(TOPICS)
+        feedback = None
+
     print(f"Téma: {topic['title_hint']}")
 
     print("Generujem článok...")
-    article = generate_article(topic)
+    article = generate_article(topic, feedback=feedback)
     print(f"Titulok: {article['title']}")
 
     slug = slugify(article['title'])
@@ -429,6 +457,7 @@ def main():
         "title": article['title'],
         "date": date_str,
         "ebook": topic['ebook'],
+        "topic_index": topic_index,
         "html": full_html,
     }
 
@@ -442,7 +471,7 @@ def main():
     with open('last_post.json', 'w', encoding='utf-8') as f:
         json.dump(post_data, f, ensure_ascii=False, indent=2)
 
-    send_approval_email(article, topic, slug, token, full_html)
+    send_approval_email(article, topic, slug, token, full_html, feedback=feedback)
     print("✅ Hotovo! Email odoslaný na schválenie.")
 
 if __name__ == '__main__':

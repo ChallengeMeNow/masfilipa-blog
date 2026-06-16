@@ -3,6 +3,15 @@ on:
   schedule:
     - cron: '0 9 * * 1'
   workflow_dispatch:
+    inputs:
+      feedback_slug:
+        description: 'Slug článku na prepísanie (prázdne = nový článok)'
+        required: false
+        default: ''
+      feedback_text:
+        description: 'Feedback / pokyny pre prepísanie článku'
+        required: false
+        default: ''
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -23,6 +32,8 @@ jobs:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           APPROVE_SECRET: ${{ secrets.APPROVE_SECRET }}
           AUTHOR_EMAIL: ${{ secrets.AUTHOR_EMAIL }}
+          FEEDBACK_SLUG: ${{ inputs.feedback_slug }}
+          FEEDBACK_TEXT: ${{ inputs.feedback_text }}
         run: python generate_post.py
 
       - name: Commit last_post.json
