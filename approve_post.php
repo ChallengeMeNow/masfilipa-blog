@@ -23,11 +23,48 @@ if (empty($APPROVE_SECRET)) {
 $GITHUB_REPO     = 'ChallengeMeNow/masfilipa-blog'; // tvoj GitHub repo
 $BLOG_DIR        = __DIR__ . '/blog/';
 $LOG_FILE        = __DIR__ . '/approve_log.txt';
+$SITEMAP_FILE    = __DIR__ . '/sitemap.xml';        // sitemap v koreni webu
+$SITE_URL        = 'https://masfilipa.sk';
 
 // --- FUNKCIE ---
 function log_msg($msg) {
     global $LOG_FILE;
     file_put_contents($LOG_FILE, date('Y-m-d H:i:s') . ' ' . $msg . "\n", FILE_APPEND);
+}
+
+// SK dátum "16. 6. 2026" -> ISO "2026-06-16" (vstup pre <lastmod>)
+function sk_date_to_iso($d) {
+    $parts = preg_split('/[.\s]+/', trim($d), -1, PREG_SPLIT_NO_EMPTY);
+    if (count($parts) < 3) return date('Y-m-d');
+    return sprintf('%04d-%02d-%02d', (int)$parts[2], (int)$parts[1], (int)$parts[0]);
+}
+
+// Prepíše sitemap.xml z poľa článkov + statické URL (home, blog).
+function regenerate_sitemap($posts) {
+    global $SITEMAP_FILE, $SITE_URL;
+
+    // zoraď články od najnovšieho po najstarší podľa dátumu
+    usort($posts, function ($a, $b) {
+        return strcmp(sk_date_to_iso($b['date']), sk_date_to_iso($a['date']));
+    });
+    $newest = $posts ? sk_date_to_iso($posts[0]['date']) : date('Y-m-d');
+
+    $url = function ($loc, $lastmod, $freq, $pri) {
+        return "  <url>\n    <loc>{$loc}</loc>\n    <lastmod>{$lastmod}</lastmod>\n"
+             . "    <changefreq>{$freq}</changefreq>\n    <priority>{$pri}</priority>\n  </url>\n";
+    };
+
+    $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    $xml .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
+    $xml .= $url("{$SITE_URL}/",      $newest, 'weekly', '1.0');
+    $xml .= $url("{$SITE_URL}/blog/", $newest, 'weekly', '0.9');
+    foreach ($posts as $p) {
+        $loc = "{$SITE_URL}/blog/" . rawurlencode($p['slug']) . '.html';
+        $xml .= $url($loc, sk_date_to_iso($p['date']), 'monthly', '0.8');
+    }
+    $xml .= "</urlset>\n";
+
+    file_put_contents($SITEMAP_FILE, $xml);
 }
 
 function verify_token($slug, $token, $secret) {
@@ -133,6 +170,9 @@ if ($action === 'approve') {
         ]);
         file_put_contents($index_file, json_encode($posts, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     }
+
+    // Regeneruj sitemap.xml (vždy, nech sedí s aktuálnym posts.json)
+    regenerate_sitemap($posts);
 
     log_msg("APPROVED: $slug → uložený ako $file_path");
 
