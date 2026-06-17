@@ -138,7 +138,7 @@ SUBMIT_ARTICLE_TOOL = {
 }
 
 
-def generate_article(topic, feedback=None):
+def generate_article(topic, feedback=None, existing_titles=None):
     """Zavolá Claude API cez tool use — schema garantuje validný JSON output."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -150,6 +150,19 @@ DÔLEŽITÉ — PREPÍSANÁ VERZIA:
 Predchádzajúca verzia tohto článku bola zamietnutá. Feedback od autora:
 "{feedback}"
 Zohľadni tento feedback. Zachovaj tému a kľúčové slová, ale uprav obsah podľa pokynov vyššie."""
+
+    dedup_note = ''
+    if existing_titles:
+        titles_list = '\n'.join(f'- {t}' for t in existing_titles)
+        dedup_note = f"""
+
+UŽ EXISTUJÚCE ČLÁNKY — NEDUPLIKUJ:
+Na blogu už vyšli tieto články:
+{titles_list}
+Témy sa periodicky opakujú, preto zvoľ SVIEŽI, odlišný uhol a titulok, ktorý sa
+tematicky neprekrýva so žiadnym z článkov vyššie. NEPOUŽI rovnaký ani takmer
+rovnaký titulok (napr. len pridaním slov ako "príliš dlho"). Ak by si o tejto téme
+mal písať znova, nájdi konkrétny pod-aspekt, ktorý ešte nebol pokrytý."""
 
     prompt = f"""Si Filip — technický riaditeľ, konzultant a autor e-bookov na masfilipa.sk.
 Píšeš po slovensky, priamym osobným štýlom. Žiadna teória, len skúsenosti z praxe.
@@ -168,7 +181,7 @@ POŽIADAVKY:
 - Osobné príbehy a konkrétne príklady, žiadne frázy
 - KĽÚČOVÉ: článok má vzbudiť záujem o e-book, ale NESMIE prezradiť jeho obsah — žiadne konkrétne techniky ani systémy z e-booku, len naznač že existujú
 - Dávaj pozor na správnu slovenčinu: napr. "štyri mesiace" nie "štyroch mesiacov" v nominatíve
-- Na konci NIČ o e-booku — to doplníme automaticky{feedback_note}
+- Na konci NIČ o e-booku — to doplníme automaticky{feedback_note}{dedup_note}
 
 Odošli článok zavolaním nástroja `submit_article`."""
 
@@ -336,6 +349,18 @@ def build_full_html(article, topic, slug, date_str, related_posts=None):
 </body>
 </html>"""
 
+def fetch_existing_titles():
+    """Stiahne posts.json a vráti zoznam titulkov existujúcich článkov.
+    Slúži na dedup v prompte — Claude nesmie vygenerovať takmer rovnaký článok.
+    Pri zlyhaní vráti prázdny zoznam — generovanie pokračuje bez dedup ochrany."""
+    try:
+        resp = requests.get(f'{BASE_URL}/blog/posts.json', timeout=5)
+        resp.raise_for_status()
+        return [p.get('title', '') for p in resp.json() if p.get('title')]
+    except Exception as e:
+        print(f"Upozornenie: nepodarilo sa načítať existujúce titulky ({e})")
+        return []
+
 def fetch_related_posts(current_slug, count=2):
     """Stiahne posts.json zo servera a vráti `count` článkov iných ako aktuálny.
     Pri akomkoľvek zlyhaní vráti prázdny zoznam — generovanie pokračuje bez prelinkenia."""
@@ -434,8 +459,11 @@ def main():
 
     print(f"Téma: {topic['title_hint']}")
 
+    existing_titles = fetch_existing_titles()
+    print(f"Existujúce články (dedup): {len(existing_titles)}")
+
     print("Generujem článok...")
-    article = generate_article(topic, feedback=feedback)
+    article = generate_article(topic, feedback=feedback, existing_titles=existing_titles)
     print(f"Titulok: {article['title']}")
 
     slug = slugify(article['title'])
