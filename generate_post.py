@@ -25,8 +25,13 @@ FEEDBACK_SLUG     = os.environ.get('FEEDBACK_SLUG', '').strip()
 FEEDBACK_TEXT     = os.environ.get('FEEDBACK_TEXT', '').strip()
 
 # --- TÉMY ČLÁNKOV ---
-# Rotujú automaticky, každý týždeň iná téma
+# Rotujú automaticky, každý týždeň iná téma.
+# Poradie je zámerne prestriedané podľa ebooku (kariéra → ľudia → priority →
+# rozhodovanie), aby dva týždne po sebe nevyšla téma z rovnakého okruhu.
+# Ebook zároveň slúži ako identifikátor tematického okruhu — články s rovnakým
+# ebookom sa navzájom prelinkujú v sekcii "Čítaj aj" (viď fetch_related_posts).
 TOPICS = [
+    # --- kolo 1 ---
     {
         "title_hint": "Kariérny postup: kedy čakať a kedy odísť",
         "primary_keyword": "kariérny postup Slovensko",
@@ -59,14 +64,7 @@ TOPICS = [
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
         "angle": "Praktický systém rozhodovania z vlastnej skúsenosti. Prečo paralýza rozhodnutím je horšia ako zlé rozhodnutie. Konkrétne otázky ktoré pomáhajú.",
     },
-    {
-        "title_hint": "Ako motivovať zamestnancov — čo funguje a čo je len ilúzia",
-        "primary_keyword": "ako motivovať zamestnancov",
-        "keywords": "motivácia zamestnancov, manažment tímu, firemná kultúra, leadership",
-        "ebook": "Krava na Mount Evereste",
-        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
-        "angle": "Rozdiel medzi vonkajšou a vnútornou motiváciou v praxi. Čo manažéri robia zle. Malé veci ktoré fungujú lepšie ako bonusy.",
-    },
+    # --- kolo 2 ---
     {
         "title_hint": "Zmena práce po 30 — strach alebo príležitosť",
         "primary_keyword": "zmena práce Slovensko",
@@ -74,6 +72,14 @@ TOPICS = [
         "ebook": "Z kuchyne do riaditeľského kresla",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
         "angle": "Osobný príbeh zmeny. Prečo strach zo zmeny je normálny ale nesmie rozhodovať. Praktické kroky ako vyhodnotiť či zmena dáva zmysel.",
+    },
+    {
+        "title_hint": "Ako motivovať zamestnancov — čo funguje a čo je len ilúzia",
+        "primary_keyword": "ako motivovať zamestnancov",
+        "keywords": "motivácia zamestnancov, manažment tímu, firemná kultúra, leadership",
+        "ebook": "Krava na Mount Evereste",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
+        "angle": "Rozdiel medzi vonkajšou a vnútornou motiváciou v praxi. Čo manažéri robia zle. Malé veci ktoré fungujú lepšie ako bonusy.",
     },
     {
         "title_hint": "Prokrastinácia v práci — prečo odkladáme dôležité veci",
@@ -84,12 +90,78 @@ TOPICS = [
         "angle": "Prokrastinácia nie je lenivosť — je to symptóm. Konkrétne techniky z praxe. Prečo systém funguje lepšie ako vôľa.",
     },
     {
+        "title_hint": "Zostať alebo odísť z práce — ako to rozhodnúť bez ľútosti",
+        "primary_keyword": "zostať alebo odísť z práce",
+        "keywords": "zostať alebo odísť, dať výpoveď, nespokojnosť v práci, rozhodovanie",
+        "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
+        "angle": "Najčastejšia otázka, ktorú dostávam. Prečo väčšina ľudí odchádza od človeka, nie od práce — a ako to rozlíšiť. Test, ktorý som si spravil sám predtým, než som odišiel.",
+    },
+    # --- kolo 3 ---
+    {
+        "title_hint": "Ako si vypýtať zvýšenie platu — z pohľadu toho, kto o ňom rozhoduje",
+        "primary_keyword": "zvýšenie platu",
+        "keywords": "zvýšenie platu, vyjednávanie o plate, žiadosť o zvýšenie, kariéra",
+        "ebook": "Z kuchyne do riaditeľského kresla",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
+        "angle": "Sedel som na druhej strane stola pri desiatkach takýchto rozhovorov. Čo funguje, čo ma odradí za tridsať sekúnd a prečo je načasovanie dôležitejšie než argumenty.",
+    },
+    {
         "title_hint": "Manažment tímu — 5 chýb ktoré robia aj skúsení manažéri",
         "primary_keyword": "manažment tímu",
         "keywords": "manažment tímu, riadenie ľudí, leadership, chyby manažéra",
         "ebook": "Krava na Mount Evereste",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
         "angle": "Konkrétne chyby z vlastnej kariéry. Čo by som robil inak. Prečo dobré úmysly nestačia bez systému.",
+    },
+    {
+        "title_hint": "Vyhorenie v práci — ako som ho prehliadol u seba aj v tíme",
+        "primary_keyword": "vyhorenie v práci",
+        "keywords": "vyhorenie, pracovné vyčerpanie, preťaženie, manažment záťaže",
+        "ebook": "Zarábaj alebo buduj",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
+        "angle": "PÍŠ VÝHRADNE Z POZÍCIE MANAŽÉRSKEJ SKÚSENOSTI, nie ako zdravotné rady. Žiadne diagnózy ani liečba. Signály, ktoré som prehliadol u ľudí v tíme, a čo sa v organizácii dá zmeniť. Ak niekto potrebuje pomoc, patrí to k odborníkovi — spomeň to v článku.",
+    },
+    {
+        "title_hint": "Ako povedať nie šéfovi bez toho, aby si si uškodil",
+        "primary_keyword": "ako povedať nie šéfovi",
+        "keywords": "povedať nie, odmietnutie úlohy, hranice v práci, preťaženie",
+        "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
+        "angle": "Ako riaditeľ som si vážil ľudí, ktorí vedeli povedať nie — ak to vedeli povedať správne. Rozdiel medzi 'nemám čas' a 'toto vypadne, ak to zoberiem'. Konkrétne vety.",
+    },
+    # --- kolo 4 ---
+    {
+        "title_hint": "Kariéra bez vysokej školy — čo naozaj rozhoduje pri povýšení",
+        "primary_keyword": "práca bez vysokej školy",
+        "keywords": "kariéra bez vysokej školy, práca bez titulu, povýšenie, prax verzus škola",
+        "ebook": "Z kuchyne do riaditeľského kresla",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
+        "angle": "Začínal som v kuchyni a skončil ako technický riaditeľ. Kedy titul reálne rozhodoval a kedy vôbec nie. Čo som musel dokazovať namiesto neho.",
+    },
+    {
+        "title_hint": "Ako dať negatívnu spätnú väzbu, aby si človeka nestratil",
+        "primary_keyword": "spätná väzba zamestnancovi",
+        "keywords": "spätná väzba, kritika zamestnanca, hodnotiaci rozhovor, manažment ľudí",
+        "ebook": "Krava na Mount Evereste",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
+        "angle": "Prečo je 'sendvič' zlá rada a čo funguje namiesto neho. Konkrétny rozhovor, ktorý som pokazil, a čo ma naučil. Kedy dať spätnú väzbu hneď a kedy počkať.",
+    },
+    {
+        "title_hint": "Prečo nevieš delegovať — a čo ťa to stojí",
+        "primary_keyword": "ako delegovať prácu",
+        "keywords": "delegovanie, delegovanie úloh, manažment času, riadenie tímu",
+        "ebook": "Zarábaj alebo buduj",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
+        "angle": "Nedelegujeme z nedôvery, ale zo strachu, že to bude horšie. Prečo je 'rýchlejšie si to spraviť sám' najdrahšia veta v manažmente. Ako som sa to učil.",
+    },
+    {
+        "title_hint": "Kedy v kariére riskovať a kedy zostať pri istote",
+        "primary_keyword": "riziko v kariére",
+        "keywords": "riziko v kariére, kariérny risk, istota verzus príležitosť, zmena kariéry",
+        "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
+        "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
+        "angle": "Nie každý risk sa oplatí. Ako rozlíšiť risk, ktorý sa dá uniesť, od toho, ktorý ťa položí. Moje dva — jeden vyšiel, druhý nie.",
     },
 ]
 
@@ -361,15 +433,42 @@ def fetch_existing_titles():
         print(f"Upozornenie: nepodarilo sa načítať existujúce titulky ({e})")
         return []
 
-def fetch_related_posts(current_slug, count=2):
-    """Stiahne posts.json zo servera a vráti `count` článkov iných ako aktuálny.
+def fetch_related_posts(current_slug, ebook, count=3):
+    """Stiahne posts.json zo servera a vráti `count` článkov na prelinkovanie.
+
+    Prednosť majú články z rovnakého tematického okruhu (= rovnaký ebook), aby
+    okruh tvoril prepojený celok. Dôvod zmeny: posts.json je zoradený od
+    najnovšieho, takže pôvodné `related[:count]` odkazovalo z každého článku na
+    tie isté dva najnovšie. Starším článkom neprichádzal žiadny interný odkaz a
+    Google ich vypadával z indexu (stav "Crawled - currently not indexed").
+
     Pri akomkoľvek zlyhaní vráti prázdny zoznam — generovanie pokračuje bez prelinkenia."""
     try:
         resp = requests.get(f'{BASE_URL}/blog/posts.json', timeout=5)
         resp.raise_for_status()
         posts = resp.json()
-        related = [p for p in posts if p.get('slug') != current_slug]
-        return related[:count]
+        # posts.json udržiava zoradené approve_post.php (najnovší prvý) → reversed = najstarší prvý
+        candidates = [p for p in reversed(posts) if p.get('slug') != current_slug]
+        same_topic = [p for p in candidates if p.get('ebook') == ebook]
+        others     = [p for p in candidates if p.get('ebook') != ebook]
+
+        # (count - 1) slotov pre články z rovnakého okruhu. Výber je náhodný, ale
+        # seedovaný slugom — pre ten istý článok vyjde vždy rovnako (opakované
+        # generovanie po feedbacku dá tie isté odkazy), a naprieč týždňami sa odkazy
+        # rozložia na celý okruh. Brať fixne "tie najstaršie" nefunguje: rovnaké dva
+        # články by dostávali odkazy stále dokola a stredne staré nikdy žiadny.
+        # Posledný slot patrí najnovšiemu článku z iného okruhu, aby čerstvý článok
+        # dostal interný odkaz hneď v nasledujúcom týždni a nezostal sirotou.
+        picked = random.Random(current_slug).sample(same_topic, min(count - 1, len(same_topic)))
+        if others:
+            picked.append(others[-1])
+        # Doplnenie, ak je okruh malý alebo archív krátky (napr. prvé týždne blogu).
+        for p in same_topic + others[::-1]:
+            if len(picked) >= count:
+                break
+            if p['slug'] not in {q['slug'] for q in picked}:
+                picked.append(p)
+        return picked[:count]
     except Exception as e:
         print(f"Upozornenie: nepodarilo sa načítať related posts ({e})")
         return []
@@ -474,7 +573,7 @@ def main():
     print(f"Token: {token[:8]}...")
 
     print("Načítavam súvisiace články...")
-    related_posts = fetch_related_posts(slug)
+    related_posts = fetch_related_posts(slug, topic['ebook'])
     print(f"Súvisiace články: {len(related_posts)}")
 
     full_html = build_full_html(article, topic, slug, date_str, related_posts)
