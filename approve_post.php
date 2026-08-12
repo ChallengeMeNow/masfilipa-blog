@@ -24,6 +24,7 @@ $GITHUB_REPO     = 'ChallengeMeNow/masfilipa-blog'; // tvoj GitHub repo
 $BLOG_DIR        = __DIR__ . '/blog/';
 $LOG_FILE        = __DIR__ . '/approve_log.txt';
 $SITEMAP_FILE    = __DIR__ . '/sitemap.xml';        // sitemap v koreni webu
+$INDEX_FILE      = __DIR__ . '/blog/index.html';    // listing blogu
 $SITE_URL        = 'https://masfilipa.sk';
 
 // --- FUNKCIE ---
@@ -65,6 +66,73 @@ function regenerate_sitemap($posts) {
     $xml .= "</urlset>\n";
 
     file_put_contents($SITEMAP_FILE, $xml);
+}
+
+// Prepíše zoznam článkov v blog/index.html medzi značkami POSTS:START a POSTS:END.
+//
+// Listing sa predtým renderoval v prehliadači cez fetch('/blog/posts.json'), takže
+// Googlebot na /blog/ videl prázdnu stránku (GSC: "Discovered - currently not
+// indexed") a články z nej nedostávali žiadny interný odkaz. Preto sa zoznam
+// vypisuje priamo do HTML pri každom schválení — rovnako ako sitemap.xml.
+//
+// Zvyšok súboru (dizajn, CSS) sa nemení, prepisuje sa len blok medzi značkami.
+function regenerate_blog_index($posts) {
+    global $INDEX_FILE;
+
+    if (!is_file($INDEX_FILE) || !is_writable($INDEX_FILE)) {
+        log_msg("WARN: index.html sa nedá zapísať, listing preskočený");
+        return;
+    }
+
+    $html = file_get_contents($INDEX_FILE);
+    if (strpos($html, 'POSTS:START') === false || strpos($html, 'POSTS:END') === false) {
+        log_msg("WARN: v index.html chýbajú značky POSTS:START/END, listing preskočený");
+        return;
+    }
+
+    usort($posts, function ($a, $b) {
+        return strcmp(sk_date_to_iso($b['date']), sk_date_to_iso($a['date']));
+    });
+
+    $esc = function ($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); };
+
+    if (!$posts) {
+        $cards = '    <div class="empty"><p>Zatiaľ žiadne články.</p><p>Čoskoro pribudnú.</p></div>';
+    } else {
+        $cards = '';
+        foreach ($posts as $p) {
+            $href = '/blog/' . rawurlencode($p['slug']) . '.html';
+            $cards .= '    <a class="post-card" href="' . $esc($href) . '">' . "\n"
+                   .  '      <div class="post-date">' . $esc($p['date']) . "</div>\n"
+                   .  '      <div class="post-title">' . $esc($p['title']) . "</div>\n"
+                   .  '      <span class="post-ebook">' . $esc($p['ebook']) . "</span>\n"
+                   .  '      <span class="post-arrow">&rarr;</span>' . "\n"
+                   .  "    </a>\n";
+        }
+        $cards = rtrim($cards, "\n");
+    }
+
+    // Značky ostávajú v súbore, aby sa dal blok prepísať aj nabudúce.
+    // preg_replace_callback (nie preg_replace), aby sa $ a \ v titulkoch článkov
+    // nebrali ako spätné referencie v náhrade.
+    $count = 0;
+    $new = preg_replace_callback(
+        '/(<!-- POSTS:START.*?-->)(.*?)(<!-- POSTS:END -->)/s',
+        function ($m) use ($cards) { return $m[1] . "\n" . $cards . "\n  " . $m[3]; },
+        $html,
+        1,
+        $count
+    );
+
+    if ($new === null || $count !== 1) {
+        log_msg("WARN: prepis listingu v index.html zlyhal");
+        return;
+    }
+    if (file_put_contents($INDEX_FILE, $new) === false) {
+        log_msg("WARN: zápis index.html zlyhal");
+        return;
+    }
+    log_msg("Listing v index.html prepísaný (" . count($posts) . " článkov)");
 }
 
 function verify_token($slug, $token, $secret) {
@@ -171,8 +239,9 @@ if ($action === 'approve') {
         file_put_contents($index_file, json_encode($posts, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
     }
 
-    // Regeneruj sitemap.xml (vždy, nech sedí s aktuálnym posts.json)
+    // Regeneruj sitemap.xml a listing (vždy, nech sedia s aktuálnym posts.json)
     regenerate_sitemap($posts);
+    regenerate_blog_index($posts);
 
     log_msg("APPROVED: $slug → uložený ako $file_path");
 
