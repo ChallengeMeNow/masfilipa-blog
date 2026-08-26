@@ -16,6 +16,7 @@ Repo: ChallengeMeNow/masfilipa-blog
 ├── approve_post.php                     # PHP webhook → nasadený na Websupport /web/
 ├── index.html                           # Blog listing → nasadený na /web/blog/index.html
 ├── last_post.json                       # Posledný vygenerovaný článok (commitne ho bot)
+├── canonical_fix.php                    # Jednorazovka, SPUSTENÁ 26. 8. 2026 — už nespúšťať
 ├── .github/workflows/generate_post.yml  # Cron + workflow_dispatch
 └── README.md
 ```
@@ -29,9 +30,14 @@ Repo: ChallengeMeNow/masfilipa-blog
   "title": "Titulok článku",
   "date": "18. 5. 2026",
   "ebook": "Názov súvisiaceho e-booku",
+  "topic_index": 3,
+  "variant_index": 1,
   "html": "<!DOCTYPE html>...celý HTML súbor článku..."
 }
 ```
+`topic_index` + `variant_index` slúžia na regeneráciu po feedbacku — vrátia
+presne tú istú tému aj variant. Články spred 26. 8. 2026 `variant_index`
+nemajú, vtedy sa berie variant 0.
 
 `posts.json` (na Websupporte v `/web/blog/posts.json`) — pole článkov, ktoré číta `index.html`:
 ```json
@@ -39,9 +45,18 @@ Repo: ChallengeMeNow/masfilipa-blog
 ```
 
 ## Témy
-Rotácia podľa `ISO week % 8`, definované v `TOPICS` v `generate_post.py`.
-Každá téma má: `title_hint`, `primary_keyword`, `keywords`, `ebook`,
-`ebook_url`, `angle`.
+16 tém v `TOPICS` v `generate_post.py`, každá s 3 long-tail variantmi.
+Téma má spoločné: `keywords`, `ebook`, `ebook_url`.
+Variant má vlastné: `title_hint`, `primary_keyword`, `angle`.
+
+Rotácia (`get_topic_indexes_for_week`) počíta týždne od `WEEK_EPOCH`
+(13. 4. 2026), nie z čísla ISO týždňa — to sa na prelome roka resetuje a
+zopakovalo by tému po štyroch týždňoch. Téma sa mení každý týždeň, variant
+až po prejdení celého kola → rovnaké `primary_keyword` sa vráti raz za 48
+týždňov.
+
+Keywordy sú zámerne long-tail. Head termy („manažment tímu") skončili na
+pozíciách 27–45 a články si o ne navzájom konkurovali.
 
 ## Secrets (GitHub → Settings → Secrets → Actions)
 - `ANTHROPIC_API_KEY` — Claude API
@@ -62,6 +77,7 @@ Každá téma má: `title_hint`, `primary_keyword`, `keywords`, `ebook`,
   Websupport (FTP / file manager) — repo ich nedeployuje.
 
 ## Pending
-- Otočiť `APPROVE_SECRET` (hardcoded v `approve_post.php:11`) a presunúť do env.
+- Prepísať `<title>` + meta description homepage (10 impresií, 0 klikov).
+- Search Console: *Request indexing* na 8 cieľových článkov kanonizácie.
 - Zvážiť update modelu z `claude-opus-4-5` na `claude-opus-4-7`
   (alebo `claude-sonnet-4-6` pre úsporu).

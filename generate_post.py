@@ -30,145 +30,407 @@ FEEDBACK_TEXT     = os.environ.get('FEEDBACK_TEXT', '').strip()
 # rozhodovanie), aby dva týždne po sebe nevyšla téma z rovnakého okruhu.
 # Ebook zároveň slúži ako identifikátor tematického okruhu — články s rovnakým
 # ebookom sa navzájom prelinkujú v sekcii "Čítaj aj" (viď fetch_related_posts).
+#
+# Každá téma má tri VARIANTY. Pri 16 témach a týždennom článku sa téma vracia
+# každých 16 týždňov — kým mala jediné primary_keyword, druhý článok si s prvým
+# konkuroval o tú istú pozíciu. Stav k 26.8.2026: 8 dvojíc a 2 trojice článkov
+# s takmer identickým keywordom, jeden z nich Google vyhodnotil ako duplikát a
+# vypadol z indexu. Preto každý návrat témy cieli na iný long-tail dopyt.
+# Variant vyberá get_topic_for_week() podľa toho, koľký raz už rotácia prebehla,
+# takže rovnaký keyword sa zopakuje najskôr o 48 týždňov.
+#
+# Keywordy sú zámerne long-tail ("ako viesť tím prvýkrát", nie "manažment tímu").
+# Na doméne bez backlinkov sú generické head termy nedosiahnuteľné — články na
+# ne sedeli na pozíciách 27–45, teda mimo dohľadu.
 TOPICS = [
     # --- kolo 1 ---
     {
-        "title_hint": "Kariérny postup: kedy čakať a kedy odísť",
-        "primary_keyword": "kariérny postup Slovensko",
         "keywords": "kariérny postup, zmena práce, kariéra, pracovný rast",
         "ebook": "Z kuchyne do riaditeľského kresla",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
-        "angle": "Osobný príbeh čakania na postup. Konkrétne signály kedy má zmysel čakať a kedy je čas odísť. Kariérny postup nie je automatický — treba ho aktívne riadiť.",
+        "variants": [
+            {
+                "title_hint": "Kariérny postup: kedy čakať a kedy odísť",
+                "primary_keyword": "kedy odísť z práce kvôli postupu",
+                "angle": "Osobný príbeh čakania na postup. Konkrétne signály kedy má zmysel čakať a kedy je čas odísť. Kariérny postup nie je automatický — treba ho aktívne riadiť.",
+            },
+            {
+                "title_hint": "Sľúbili mi povýšenie a nič sa nestalo — čo teraz",
+                "primary_keyword": "sľúbené povýšenie sa nekoná",
+                "angle": "Sľub bez dátumu nie je sľub. Ako som to riešil ja a ako to vyzeralo z druhej strany, keď som sľuboval ja. Kedy je odklad legitímny a kedy je to len spôsob, ako ťa udržať.",
+            },
+            {
+                "title_hint": "Ako si vypýtať povýšenie, keď šéf sám od seba mlčí",
+                "primary_keyword": "ako požiadať o povýšenie",
+                "angle": "Väčšina ľudí čaká, kým si ich niekto všimne. Čo ma ako riaditeľa presvedčilo a čo ma odradilo. Konkrétna príprava na ten rozhovor.",
+            },
+        ],
     },
     {
-        "title_hint": "Kedy vyhodiť zamestnanca — a prečo to odkladáme príliš dlho",
-        "primary_keyword": "kedy vyhodiť zamestnanca",
         "keywords": "vyhadzovanie zamestnanca, manažment tímu, HR rozhodnutia, slabý výkon",
         "ebook": "Krava na Mount Evereste",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
-        "angle": "Prečo odkladáme ťažké rozhodnutia o ľuďoch a čo to stojí firmu. Metóda 3 sedení — kde už pri prvom je takmer jasné ako sa to bude vyvíjať. Detaily v ebooku.",
+        "variants": [
+            {
+                "title_hint": "Kedy vyhodiť zamestnanca — a prečo to odkladáme príliš dlho",
+                "primary_keyword": "kedy dať výpoveď zamestnancovi",
+                "angle": "Prečo odkladáme ťažké rozhodnutia o ľuďoch a čo to stojí firmu. Metóda 3 sedení — kde už pri prvom je takmer jasné ako sa to bude vyvíjať. Detaily v ebooku.",
+            },
+            {
+                "title_hint": "Zamestnanec neplní úlohy — čo skúsiť predtým, než ho pustíš",
+                "primary_keyword": "zamestnanec neplní úlohy",
+                "angle": "Slabý výkon má tri celkom odlišné príčiny a každá sa rieši inak. Ako ich rozlíšiť skôr, než siahneš po výpovedi. Prípad z môjho tímu, kde som sa mýlil.",
+            },
+            {
+                "title_hint": "Ako viesť rozhovor o ukončení pracovného pomeru",
+                "primary_keyword": "rozhovor o ukončení pracovného pomeru",
+                "angle": "Viedol som ich desiatky a stále je to najťažších pätnásť minút v mesiaci. Čo povedať, čo nikdy nehovoriť a prečo sa to nedá odkomunikovať mailom.",
+            },
+        ],
     },
     {
-        "title_hint": "Time management pre manažérov — prečo nestíhate aj keď pracujete 10 hodín",
-        "primary_keyword": "time management manažér",
         "keywords": "time management, manažment času, produktivita, priority",
         "ebook": "Zarábaj alebo buduj",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
-        "angle": "Systém zarábaj vs buduj. Prečo nie je problém čas ale priority. Ako rozoznať čo je dôležité od toho čo je len naliehavé.",
+        "variants": [
+            {
+                "title_hint": "Prečo nestíhaš, aj keď pracuješ desať hodín denne",
+                "primary_keyword": "prečo nestíham v práci",
+                "angle": "Systém zarábaj vs buduj. Prečo nie je problém čas ale priority. Ako rozoznať čo je dôležité od toho čo je len naliehavé.",
+            },
+            {
+                "title_hint": "Kalendár plný mítingov — ako si vziať späť pracovný deň",
+                "primary_keyword": "priveľa mítingov v práci",
+                "angle": "Keď mi kalendár prvýkrát zaplnili cudzí ľudia, trvalo mi rok, kým som si ho vzal späť. Čo som zrušil, čo skrátil a čo sa stalo potom.",
+            },
+            {
+                "title_hint": "Naliehavé verzus dôležité — ako to rozlíšiť v reálnom dni",
+                "primary_keyword": "naliehavé verzus dôležité úlohy",
+                "angle": "Teóriu pozná každý, v utorok o desiatej ju nepoužije nikto. Konkrétna otázka, ktorú si kladiem pri každej požiadavke, čo mi príde.",
+            },
+        ],
     },
     {
-        "title_hint": "Ako sa rozhodnúť keď je každá možnosť zlá",
-        "primary_keyword": "ako sa rozhodnúť v práci",
         "keywords": "rozhodovanie, ťažké rozhodnutia, kariéra, životné rozhodnutia",
         "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
-        "angle": "Praktický systém rozhodovania z vlastnej skúsenosti. Prečo paralýza rozhodnutím je horšia ako zlé rozhodnutie. Konkrétne otázky ktoré pomáhajú.",
+        "variants": [
+            {
+                "title_hint": "Ako sa rozhodnúť, keď je každá možnosť zlá",
+                "primary_keyword": "ako sa rozhodnúť keď je každá možnosť zlá",
+                "angle": "Praktický systém rozhodovania z vlastnej skúsenosti. Prečo paralýza rozhodnutím je horšia ako zlé rozhodnutie. Konkrétne otázky ktoré pomáhajú.",
+            },
+            {
+                "title_hint": "Neviem sa rozhodnúť — ako sa dostať z paralýzy",
+                "primary_keyword": "neviem sa rozhodnúť",
+                "angle": "Odkladanie rozhodnutia je tiež rozhodnutie, len ho spraví za teba niekto iný. Ako si nastaviť termín a čo robiť, keď informácie nikdy nebudú úplné.",
+            },
+            {
+                "title_hint": "Ako si vybrať medzi dvoma pracovnými ponukami",
+                "primary_keyword": "ako si vybrať medzi dvoma ponukami práce",
+                "angle": "Plat je najhorší kritérium, aj keď vyzerá najobjektívnejšie. Čo som porovnával ja pri poslednom rozhodovaní a čo by som pridal dnes.",
+            },
+        ],
     },
     # --- kolo 2 ---
     {
-        "title_hint": "Zmena práce po 30 — strach alebo príležitosť",
-        "primary_keyword": "zmena práce Slovensko",
         "keywords": "zmena práce, kariéra po tridsiatke, pracovná zmena, nová práca",
         "ebook": "Z kuchyne do riaditeľského kresla",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
-        "angle": "Osobný príbeh zmeny. Prečo strach zo zmeny je normálny ale nesmie rozhodovať. Praktické kroky ako vyhodnotiť či zmena dáva zmysel.",
+        "variants": [
+            {
+                "title_hint": "Zmena práce po tridsiatke — strach alebo príležitosť",
+                "primary_keyword": "zmena práce po tridsiatke",
+                "angle": "Osobný príbeh zmeny. Prečo strach zo zmeny je normálny ale nesmie rozhodovať. Praktické kroky ako vyhodnotiť či zmena dáva zmysel.",
+            },
+            {
+                "title_hint": "Zmena odboru po desiatich rokoch — čo si vieš zobrať so sebou",
+                "primary_keyword": "zmena odboru po rokoch praxe",
+                "angle": "Nezačínaš od nuly, aj keď to tak vyzerá. Ktoré zručnosti prešli so mnou z kuchyne do IT a ktoré som musel nechať tak.",
+            },
+            {
+                "title_hint": "Oplatí sa zmeniť prácu? Čo si spočítať pred výpoveďou",
+                "primary_keyword": "oplatí sa zmeniť prácu",
+                "angle": "Rozdiel v plate je len jedna položka. Čo ešte treba do výpočtu — čas na zabehnutie, stratený kredit, riziko skúšobnej doby. Moje dva prechody.",
+            },
+        ],
     },
     {
-        "title_hint": "Ako motivovať zamestnancov — čo funguje a čo je len ilúzia",
-        "primary_keyword": "ako motivovať zamestnancov",
         "keywords": "motivácia zamestnancov, manažment tímu, firemná kultúra, leadership",
         "ebook": "Krava na Mount Evereste",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
-        "angle": "Rozdiel medzi vonkajšou a vnútornou motiváciou v praxi. Čo manažéri robia zle. Malé veci ktoré fungujú lepšie ako bonusy.",
+        "variants": [
+            {
+                "title_hint": "Ako motivovať zamestnancov bez peňazí",
+                "primary_keyword": "ako motivovať zamestnancov bez peňazí",
+                "angle": "Rozdiel medzi vonkajšou a vnútornou motiváciou v praxi. Čo manažéri robia zle. Malé veci ktoré fungujú lepšie ako bonusy.",
+            },
+            {
+                "title_hint": "Tím stratil ťah — ako ho rozhýbať späť",
+                "primary_keyword": "ako zvýšiť motiváciu tímu",
+                "angle": "Únava tímu nepríde zo dňa na deň a nedá sa vyriešiť teambuildingom. Čo som skúšal, čo nezabralo a čo nakoniec pohlo vecami.",
+            },
+            {
+                "title_hint": "Prečo bonusy nefungujú tak, ako od nich čakáš",
+                "primary_keyword": "fungujú finančné bonusy pre zamestnancov",
+                "angle": "Bonus zaberie raz a potom sa stane nárokom. Kde má finančná motivácia zmysel a kde len draho kupuje to, čo si mal vyriešiť inak.",
+            },
+        ],
     },
     {
-        "title_hint": "Prokrastinácia v práci — prečo odkladáme dôležité veci",
-        "primary_keyword": "prokrastinácia v práci",
         "keywords": "prokrastinácia, odkladanie, produktivita, time management",
         "ebook": "Zarábaj alebo buduj",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
-        "angle": "Prokrastinácia nie je lenivosť — je to symptóm. Konkrétne techniky z praxe. Prečo systém funguje lepšie ako vôľa.",
+        "variants": [
+            {
+                "title_hint": "Prokrastinácia v práci — ako s ňou prestať",
+                "primary_keyword": "prokrastinácia v práci ako prestať",
+                "angle": "Prokrastinácia nie je lenivosť — je to symptóm. Konkrétne techniky z praxe. Prečo systém funguje lepšie ako vôľa.",
+            },
+            {
+                "title_hint": "Odkladám najdôležitejšiu úlohu dňa — prečo a čo s tým",
+                "primary_keyword": "odkladanie dôležitých úloh",
+                "angle": "Odkladá sa vždy tá istá kategória úloh — nejasné zadanie a viditeľné riziko zlyhania. Ako si úlohu rozobrať tak, aby sa dala začať.",
+            },
+            {
+                "title_hint": "Nie je to lenivosť — je to zle zadaná úloha",
+                "primary_keyword": "prečo prokrastinujem v práci",
+                "angle": "Keď mi v tíme niekto dlho neodovzdal prácu, chyba bola takmer vždy v zadaní, nie v človeku. Ako to platí aj na úlohy, ktoré zadávaš sám sebe.",
+            },
+        ],
     },
     {
-        "title_hint": "Zostať alebo odísť z práce — ako to rozhodnúť bez ľútosti",
-        "primary_keyword": "zostať alebo odísť z práce",
         "keywords": "zostať alebo odísť, dať výpoveď, nespokojnosť v práci, rozhodovanie",
         "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
-        "angle": "Najčastejšia otázka, ktorú dostávam. Prečo väčšina ľudí odchádza od človeka, nie od práce — a ako to rozlíšiť. Test, ktorý som si spravil sám predtým, než som odišiel.",
+        "variants": [
+            {
+                "title_hint": "Mám dať výpoveď alebo zostať? Ako to rozhodnúť bez ľútosti",
+                "primary_keyword": "mám dať výpoveď alebo zostať",
+                "angle": "Najčastejšia otázka, ktorú dostávam. Prečo väčšina ľudí odchádza od človeka, nie od práce — a ako to rozlíšiť. Test, ktorý som si spravil sám predtým, než som odišiel.",
+            },
+            {
+                "title_hint": "Odchádzaš od šéfa alebo od práce? Ako to rozlíšiť",
+                "primary_keyword": "zlý šéf dať výpoveď",
+                "angle": "Rovnaká práca pod iným človekom je iná práca. Ako zistiť, či problém odíde s tebou do ďalšej firmy, alebo zostane tu.",
+            },
+            {
+                "title_hint": "Kedy dať výpoveď — signály, ktoré som u seba prehliadol",
+                "primary_keyword": "kedy dať výpoveď v práci",
+                "angle": "Nie deň, keď to praskne, ale mesiace predtým. Tri veci, ktoré som u seba videl a vysvetlil si ich ako únavu.",
+            },
+        ],
     },
     # --- kolo 3 ---
     {
-        "title_hint": "Ako si vypýtať zvýšenie platu — z pohľadu toho, kto o ňom rozhoduje",
-        "primary_keyword": "zvýšenie platu",
         "keywords": "zvýšenie platu, vyjednávanie o plate, žiadosť o zvýšenie, kariéra",
         "ebook": "Z kuchyne do riaditeľského kresla",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
-        "angle": "Sedel som na druhej strane stola pri desiatkach takýchto rozhovorov. Čo funguje, čo ma odradí za tridsať sekúnd a prečo je načasovanie dôležitejšie než argumenty.",
+        "variants": [
+            {
+                "title_hint": "Ako si vypýtať zvýšenie platu — z pohľadu toho, kto rozhoduje",
+                "primary_keyword": "ako si vypýtať zvýšenie platu",
+                "angle": "Sedel som na druhej strane stola pri desiatkach takýchto rozhovorov. Čo funguje, čo ma odradí za tridsať sekúnd a prečo je načasovanie dôležitejšie než argumenty.",
+            },
+            {
+                "title_hint": "Šéf mi zamietol zvýšenie platu — čo ďalej",
+                "primary_keyword": "zamietnuté zvýšenie platu",
+                "angle": "Nie každé nie znamená to isté. Ako z odpovede vyčítať, či ide o rozpočet, o načasovanie alebo o teba — a čo si vypýtať namiesto peňazí.",
+            },
+            {
+                "title_hint": "Kedy je najlepší čas žiadať o zvýšenie platu",
+                "primary_keyword": "kedy žiadať o zvýšenie platu",
+                "angle": "Existujú týždne v roku, keď je odpoveď nie bez ohľadu na to, aký si dobrý. Ako vyzerá rozpočtový cyklus zvnútra a kedy má zmysel prísť.",
+            },
+        ],
     },
     {
-        "title_hint": "Manažment tímu — 5 chýb ktoré robia aj skúsení manažéri",
-        "primary_keyword": "manažment tímu",
         "keywords": "manažment tímu, riadenie ľudí, leadership, chyby manažéra",
         "ebook": "Krava na Mount Evereste",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
-        "angle": "Konkrétne chyby z vlastnej kariéry. Čo by som robil inak. Prečo dobré úmysly nestačia bez systému.",
+        "variants": [
+            {
+                "title_hint": "Chyby začínajúceho manažéra, ktoré robia aj skúsení",
+                "primary_keyword": "chyby začínajúceho manažéra",
+                "angle": "Konkrétne chyby z vlastnej kariéry. Čo by som robil inak. Prečo dobré úmysly nestačia bez systému.",
+            },
+            {
+                "title_hint": "Prvýkrát vediem tím — čo som si mal ustrážiť na začiatku",
+                "primary_keyword": "ako viesť tím prvýkrát",
+                "angle": "Prvých deväťdesiat dní rozhodne o tom, ako s tebou budú ľudia hovoriť ďalšie dva roky. Čo som podcenil a čo by som dnes spravil hneď v prvom týždni.",
+            },
+            {
+                "title_hint": "Ako viesť bývalých kolegov, keď sa z teba stane ich šéf",
+                "primary_keyword": "povýšenie na šéfa kolegov",
+                "angle": "Najnepríjemnejší prechod v kariére. Čo sa musí povedať nahlas hneď na začiatku a prečo snaha zostať kamarátom uškodí obom stranám.",
+            },
+        ],
     },
     {
-        "title_hint": "Vyhorenie v práci — ako som ho prehliadol u seba aj v tíme",
-        "primary_keyword": "vyhorenie v práci",
         "keywords": "vyhorenie, pracovné vyčerpanie, preťaženie, manažment záťaže",
         "ebook": "Zarábaj alebo buduj",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
-        "angle": "PÍŠ VÝHRADNE Z POZÍCIE MANAŽÉRSKEJ SKÚSENOSTI, nie ako zdravotné rady. Žiadne diagnózy ani liečba. Signály, ktoré som prehliadol u ľudí v tíme, a čo sa v organizácii dá zmeniť. Ak niekto potrebuje pomoc, patrí to k odborníkovi — spomeň to v článku.",
+        # Zdravotne citlivá téma — všetky varianty musia zostať v manažérskej rovine.
+        "variants": [
+            {
+                "title_hint": "Vyhorenie v tíme — ako som ho prehliadol u seba aj u iných",
+                "primary_keyword": "vyhorenie v tíme",
+                "angle": "PÍŠ VÝHRADNE Z POZÍCIE MANAŽÉRSKEJ SKÚSENOSTI, nie ako zdravotné rady. Žiadne diagnózy ani liečba. Signály, ktoré som prehliadol u ľudí v tíme, a čo sa v organizácii dá zmeniť. Ak niekto potrebuje pomoc, patrí to k odborníkovi — spomeň to v článku.",
+            },
+            {
+                "title_hint": "Preťažený zamestnanec — signály, ktoré vidno skôr než odíde",
+                "primary_keyword": "preťažený zamestnanec signály",
+                "angle": "PÍŠ VÝHRADNE Z POZÍCIE MANAŽÉRA, žiadne diagnózy ani zdravotné rady. Čo sa dá všimnúť na práci, nie na človeku — kvalita, komunikácia, tempo. Ako sa spýtať, aby to nebolo výsluchom. Ak ide o zdravie, patrí to k odborníkovi — spomeň to.",
+            },
+            {
+                "title_hint": "Čo sa dá v tíme zmeniť, kým je ešte čas",
+                "primary_keyword": "prevencia vyhorenia v tíme",
+                "angle": "PÍŠ VÝHRADNE Z POZÍCIE MANAŽÉRA, žiadne diagnózy ani liečba. Organizačné veci, ktoré reálne uberajú záťaž — rozsah zodpovednosti, jasné priority, právo povedať nie. Čo som zaviedol a čo z toho vydržalo. Ak niekto potrebuje pomoc, patrí to k odborníkovi.",
+            },
+        ],
     },
     {
-        "title_hint": "Ako povedať nie šéfovi bez toho, aby si si uškodil",
-        "primary_keyword": "ako povedať nie šéfovi",
         "keywords": "povedať nie, odmietnutie úlohy, hranice v práci, preťaženie",
         "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
-        "angle": "Ako riaditeľ som si vážil ľudí, ktorí vedeli povedať nie — ak to vedeli povedať správne. Rozdiel medzi 'nemám čas' a 'toto vypadne, ak to zoberiem'. Konkrétne vety.",
+        "variants": [
+            {
+                "title_hint": "Ako povedať nie šéfovi bez toho, aby si si uškodil",
+                "primary_keyword": "ako povedať nie šéfovi",
+                "angle": "Ako riaditeľ som si vážil ľudí, ktorí vedeli povedať nie — ak to vedeli povedať správne. Rozdiel medzi 'nemám čas' a 'toto vypadne, ak to zoberiem'. Konkrétne vety.",
+            },
+            {
+                "title_hint": "Mám priveľa práce — ako to povedať šéfovi",
+                "primary_keyword": "priveľa práce ako to povedať šéfovi",
+                "angle": "Sťažnosť sa dá ignorovať, zoznam s termínmi nie. Ako prísť s číslami namiesto pocitov a nechať rozhodnutie o prioritách na tom, kto ho má robiť.",
+            },
+            {
+                "title_hint": "Ako odmietnuť úlohu a nezostať za lenivého",
+                "primary_keyword": "ako odmietnuť úlohu v práci",
+                "angle": "Odmietnutie bez alternatívy vyzerá ako nezáujem. Trojkroková veta, ktorú používam dodnes — a jeden prípad, keď som ju mal použiť a nepoužil.",
+            },
+        ],
     },
     # --- kolo 4 ---
     {
-        "title_hint": "Kariéra bez vysokej školy — čo naozaj rozhoduje pri povýšení",
-        "primary_keyword": "práca bez vysokej školy",
         "keywords": "kariéra bez vysokej školy, práca bez titulu, povýšenie, prax verzus škola",
         "ebook": "Z kuchyne do riaditeľského kresla",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/20137683-17e6-409f-9855-5837402f7408",
-        "angle": "Začínal som v kuchyni a skončil ako technický riaditeľ. Kedy titul reálne rozhodoval a kedy vôbec nie. Čo som musel dokazovať namiesto neho.",
+        "variants": [
+            {
+                "title_hint": "Kariéra bez vysokej školy — čo naozaj rozhoduje pri povýšení",
+                "primary_keyword": "kariéra bez vysokej školy",
+                "angle": "Začínal som v kuchyni a skončil ako technický riaditeľ. Kedy titul reálne rozhodoval a kedy vôbec nie. Čo som musel dokazovať namiesto neho.",
+            },
+            {
+                "title_hint": "Pohovor bez vysokej školy — ako to zohrať",
+                "primary_keyword": "pohovor bez vysokej školy",
+                "angle": "Sedel som na strane, ktorá vyberá. Kedy som titul riešil a kedy ma zaujímalo úplne niečo iné. Ako o chýbajúcej škole hovoriť tak, aby to nebola obhajoba.",
+            },
+            {
+                "title_hint": "Rozhoduje pri povýšení prax alebo vysoká škola",
+                "primary_keyword": "prax alebo vysoká škola",
+                "angle": "Odpoveď sa mení podľa toho, ako vysoko si v hierarchii. Kde je titul filter na vstupe a kde už dávno nikoho nezaujíma.",
+            },
+        ],
     },
     {
-        "title_hint": "Ako dať negatívnu spätnú väzbu, aby si človeka nestratil",
-        "primary_keyword": "spätná väzba zamestnancovi",
         "keywords": "spätná väzba, kritika zamestnanca, hodnotiaci rozhovor, manažment ľudí",
         "ebook": "Krava na Mount Evereste",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/86eb1eb1-8f5a-4dbc-b293-fcc359fe6596",
-        "angle": "Prečo je 'sendvič' zlá rada a čo funguje namiesto neho. Konkrétny rozhovor, ktorý som pokazil, a čo ma naučil. Kedy dať spätnú väzbu hneď a kedy počkať.",
+        "variants": [
+            {
+                "title_hint": "Ako dať negatívnu spätnú väzbu, aby si človeka nestratil",
+                "primary_keyword": "ako dať negatívnu spätnú väzbu",
+                "angle": "Konkrétny rozhovor, ktorý som pokazil, a čo ma naučil. Kedy dať spätnú väzbu hneď a kedy počkať. Prečo forma rozhoduje viac než obsah.",
+            },
+            {
+                "title_hint": "Hodnotiaci rozhovor, po ktorom človek neodchádza zlomený",
+                "primary_keyword": "ako viesť hodnotiaci rozhovor",
+                "angle": "Raz ročne zhrnúť dvanásť mesiacov je nezmysel, ak sa celý rok mlčalo. Ako si rozhovor pripraviť a čo v ňom nemá čo hľadať.",
+            },
+            {
+                "title_hint": "Prečo je sendvičová metóda zlá rada",
+                "primary_keyword": "sendvičová metóda spätnej väzby",
+                "angle": "Ľudia si zapamätajú len chlieb. Čo som používal namiesto toho a prečo je jasná veta milosrdnejšia než obalená.",
+            },
+        ],
     },
     {
-        "title_hint": "Prečo nevieš delegovať — a čo ťa to stojí",
-        "primary_keyword": "ako delegovať prácu",
         "keywords": "delegovanie, delegovanie úloh, manažment času, riadenie tímu",
         "ebook": "Zarábaj alebo buduj",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/d6153a14-0083-4e88-aa6e-181964b13fe8",
-        "angle": "Nedelegujeme z nedôvery, ale zo strachu, že to bude horšie. Prečo je 'rýchlejšie si to spraviť sám' najdrahšia veta v manažmente. Ako som sa to učil.",
+        "variants": [
+            {
+                "title_hint": "Prečo nevieš delegovať — a čo ťa to stojí",
+                "primary_keyword": "prečo neviem delegovať",
+                "angle": "Nedelegujeme z nedôvery, ale zo strachu, že to bude horšie. Prečo je 'rýchlejšie si to spraviť sám' najdrahšia veta v manažmente. Ako som sa to učil.",
+            },
+            {
+                "title_hint": "Zadal som úlohu a aj tak ju robím sám",
+                "primary_keyword": "ako správne zadať úlohu",
+                "angle": "Keď sa práca vracia zle spravená, chyba býva v zadaní. Čo musí obsahovať, aby sa nemuselo dovysvetľovať — a prečo termín nie je to najdôležitejšie.",
+            },
+            {
+                "title_hint": "Mikromanažment — ako som sa ho odnaučil",
+                "primary_keyword": "mikromanažment ako prestať",
+                "angle": "Kontrolovať každý detail je pohodlné, lebo to vyzerá ako zodpovednosť. Čo som prestal kontrolovať ako prvé a čo sa reálne stalo.",
+            },
+        ],
     },
     {
-        "title_hint": "Kedy v kariére riskovať a kedy zostať pri istote",
-        "primary_keyword": "riziko v kariére",
         "keywords": "riziko v kariére, kariérny risk, istota verzus príležitosť, zmena kariéry",
         "ebook": "Ako sa rozhodnúť, keď sa zdá byť každé rozhodnutie zlé",
         "ebook_url": "https://masfilipa.lemonsqueezy.com/checkout/buy/6d78e957-ee7c-4378-b620-252a4c20bf1e",
-        "angle": "Nie každý risk sa oplatí. Ako rozlíšiť risk, ktorý sa dá uniesť, od toho, ktorý ťa položí. Moje dva — jeden vyšiel, druhý nie.",
+        "variants": [
+            {
+                "title_hint": "Kedy v kariére riskovať a kedy zostať pri istote",
+                "primary_keyword": "kedy v kariére riskovať",
+                "angle": "Nie každý risk sa oplatí. Ako rozlíšiť risk, ktorý sa dá uniesť, od toho, ktorý ťa položí. Moje dva — jeden vyšiel, druhý nie.",
+            },
+            {
+                "title_hint": "Istá práca verzus lákavá ponuka — ako to vyhodnotiť",
+                "primary_keyword": "istota alebo lepšia príležitosť v práci",
+                "angle": "Istota má cenu, ktorú si väčšinou nespočítame. Ako si ju vyčísliť a porovnať s tým, čo ponuka reálne sľubuje — a čo len naznačuje.",
+            },
+            {
+                "title_hint": "Risk, ktorý sa mi nevyplatil — a čo ma naučil",
+                "primary_keyword": "neúspešná zmena kariéry",
+                "angle": "Konkrétny zlý ťah, ktorý ma stál rok. Čo som prehliadol pri rozhodovaní a aké tri otázky si odvtedy kladiem, kým poviem áno.",
+            },
+        ],
     },
 ]
 
-def get_topic_for_week():
-    """Vyberie tému podľa čísla týždňa — rotuje automaticky."""
-    week_num = datetime.now().isocalendar()[1]
-    return TOPICS[week_num % len(TOPICS)]
+# Pevný pondelok, od ktorého sa počítajú týždne. Rotácia sa zámerne neviaže na
+# číslo ISO týždňa: to sa na prelome roka vráti na 1, takže po 52. týždni by
+# rotácia preskočila späť a zopakovala tú istú tému aj ten istý variant po
+# štyroch týždňoch. Priebežné číslo týždňa rastie stále a pár (téma, variant)
+# sa tak zopakuje presne raz za 16 * 3 = 48 týždňov.
+WEEK_EPOCH = datetime(2026, 4, 13)
+
+def get_topic_indexes_for_week():
+    """Vráti (topic_index, variant_index) pre aktuálny týždeň.
+
+    Téma rotuje po týždňoch, variant sa mení až po prejdení celého kola tém.
+    Oboje sa ukladá do last_post.json, aby regenerácia po feedbacku vrátila
+    presne tú istú tému aj variant."""
+    week_index = (datetime.now() - WEEK_EPOCH).days // 7
+    topic_index = week_index % len(TOPICS)
+    round_num = week_index // len(TOPICS)
+    variant_index = round_num % len(TOPICS[topic_index]['variants'])
+    return topic_index, variant_index
+
+def resolve_topic(topic_index, variant_index):
+    """Zloží tému a jej variant do jedného plochého dictu.
+
+    Zvyšok skriptu tak pracuje s témou rovnako ako predtým, než varianty
+    pribudli — title_hint, primary_keyword a angle prídu z variantu, keywords,
+    ebook a ebook_url sú spoločné pre celú tému."""
+    topic = TOPICS[topic_index]
+    variants = topic['variants']
+    variant = variants[variant_index % len(variants)]
+    return {**{k: v for k, v in topic.items() if k != 'variants'}, **variant}
 
 def slugify(text):
     """Vytvorí URL-friendly slug zo slovenského textu."""
@@ -544,19 +806,25 @@ def send_approval_email(article, topic, slug, token, full_html, feedback=None):
 def main():
     print("=== masfilipa.sk — generátor článkov ===")
 
+    week_topic_index, week_variant_index = get_topic_indexes_for_week()
+
     if FEEDBACK_SLUG and FEEDBACK_TEXT:
         print(f"Feedback mód: regenerujem '{FEEDBACK_SLUG}'")
         with open('last_post.json', encoding='utf-8') as f:
             last = json.load(f)
-        topic_index = last.get('topic_index', datetime.now().isocalendar()[1] % len(TOPICS))
-        topic = TOPICS[topic_index]
+        topic_index = last.get('topic_index', week_topic_index)
+        # Články spred zavedenia variantov variant_index nemajú — vtedy variant 0,
+        # čo je pôvodná definícia témy.
+        variant_index = last.get('variant_index', 0)
         feedback = FEEDBACK_TEXT
     else:
-        topic = get_topic_for_week()
-        topic_index = datetime.now().isocalendar()[1] % len(TOPICS)
+        topic_index, variant_index = week_topic_index, week_variant_index
         feedback = None
 
-    print(f"Téma: {topic['title_hint']}")
+    topic = resolve_topic(topic_index, variant_index)
+
+    print(f"Téma: {topic['title_hint']} (variant {variant_index + 1})")
+    print(f"Kľúčové slovo: {topic['primary_keyword']}")
 
     existing_titles = fetch_existing_titles()
     print(f"Existujúce články (dedup): {len(existing_titles)}")
@@ -585,6 +853,7 @@ def main():
         "date": date_str,
         "ebook": topic['ebook'],
         "topic_index": topic_index,
+        "variant_index": variant_index,
         "html": full_html,
     }
 
