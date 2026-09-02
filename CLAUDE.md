@@ -85,9 +85,9 @@ pozíciách 27–45 a články si o ne navzájom konkurovali.
   (crawl 26. 8.) a `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri`
   (crawl 12. 8.). Ak ostanú vonku aj po requeste, nejde o rýchlosť crawlu,
   ale o duplicitu voči indexovaným súrodencom — vtedy témy zlúčiť.
-- Zmazať z `/web/blog/` tri verejne dostupné zálohy po `canonical_fix.php`
-  (`*.html.bak`) — vracajú HTTP 200 ako text/html. Canonical v nich sedí,
-  takže o duplicitu nejde, je to poriadok.
+- Ak sa raz bude znova púšťať jednorazovka nad `/web/blog/`, nech si nenechá
+  `.bak` kópie vedľa článkov — sú verejne dostupné cez HTTP 200 a treba ich
+  potom ručne mazať (`canonical_fix.php` ich takto nechal desať).
 - Zvážiť update modelu z `claude-opus-4-5` na `claude-opus-4-7`
   (alebo `claude-sonnet-4-6` pre úsporu).
 
@@ -104,3 +104,5 @@ Hotové, nevracať sa k tomu:
   a 6 impresií nie je dôvod ním hýbať.
 - Kanonizácia blogu — canonical sedí na všetkých kontrolovaných článkoch.
 - Anchor linky (`#ebooks`, `#about`, `#reviews`) sú zo sitemapy preč.
+- Desať `.html.bak` záloh po `canonical_fix.php` zmazaných z `/web/blog/`
+  (2. 9. 2026). Overené: všetky 404, všetkých 21 živých stránok 200.
