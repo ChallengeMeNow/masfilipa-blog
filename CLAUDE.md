@@ -80,11 +80,15 @@ pozíciách 27–45 a články si o ne navzájom konkurovali.
   Websupport (FTP / file manager) — repo ich nedeployuje.
 
 ## Pending
-- Search Console: *Request indexing* na dva články, ktoré Google crawloval
-  a neindexoval — `time-management-manazer-system-zarabaj-vs-buduj`
-  (crawl 26. 8.) a `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri`
-  (crawl 12. 8.). Ak ostanú vonku aj po requeste, nejde o rýchlosť crawlu,
-  ale o duplicitu voči indexovaným súrodencom — vtedy témy zlúčiť.
+- **Čaká sa na indexáciu.** 2. 9. 2026 podaný *Request indexing* na dva
+  články, ktoré Google crawloval a neindexoval —
+  `time-management-manazer-system-zarabaj-vs-buduj` (crawl 26. 8.) a
+  `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri` (crawl 12. 8.).
+  Skontrolovať 9. 9. 2026. Ak budú stále vonku, nejde o rýchlosť crawlu,
+  ale o to, že ich Google hodnotí ako duplicitu voči indexovaným
+  súrodencom (`time-management-manazer-10-hodin-...`,
+  `manazment-timu-preco-dobre-umysly-nestacia`) — vtedy témy zlúčiť,
+  nie request opakovať.
 - Ak sa raz bude znova púšťať jednorazovka nad `/web/blog/`, nech si nenechá
   `.bak` kópie vedľa článkov — sú verejne dostupné cez HTTP 200 a treba ich
   potom ručne mazať (`canonical_fix.php` ich takto nechal desať).
