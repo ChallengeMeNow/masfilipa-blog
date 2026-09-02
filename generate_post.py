@@ -460,7 +460,12 @@ SUBMIT_ARTICLE_TOOL = {
             },
             "meta_description": {
                 "type": "string",
-                "description": "Popis pre Google, max 155 znakov, obsahuje kľúčové slovo.",
+                "description": (
+                    "Popis pre Google, max 155 znakov, obsahuje kľúčové slovo. "
+                    "Nie je to zhrnutie titulku — je to dôvod kliknúť. "
+                    "Otvor problémom čitateľa, nie témou článku, a sľúb konkrétnu vec, "
+                    "ktorú sa v článku dozvie."
+                ),
             },
             "content_html": {
                 "type": "string",

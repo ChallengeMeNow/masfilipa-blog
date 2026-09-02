@@ -67,8 +67,11 @@ pozíciách 27–45 a články si o ne navzájom konkurovali.
 
 ## Pravidlá
 - Komunikácia po slovensky.
-- NIKDY nerobiť `git push` — Filip pushuje cez GitHub Desktop.
-- Commity len so súhlasom.
+- Git: commit, push, pull aj merge robím sám a bez pýtania sa — podľa
+  globálneho `~/.claude/CLAUDE.md`. Deštruktívne operácie (`push --force`,
+  `reset --hard`, mazanie branchov) len so súhlasom.
+  (Do 2. 9. 2026 tu stálo „NIKDY nerobiť `git push`" + „commity len so
+  súhlasom" — zastarané, Filip to pravidlo zrušil.)
 - Nepridávať testy / build systémy / abstrakcie bez požiadavky — je to
   zámerne low-tech projekt.
 - `last_post.json` prepisuje bot každý pondelok — neukladať tam ručne
@@ -77,7 +80,24 @@ pozíciách 27–45 a články si o ne navzájom konkurovali.
   Websupport (FTP / file manager) — repo ich nedeployuje.
 
 ## Pending
-- Prepísať `<title>` + meta description homepage (10 impresií, 0 klikov).
-- Search Console: *Request indexing* na 8 cieľových článkov kanonizácie.
+- Search Console: *Request indexing* na dva články, ktoré Google crawloval
+  a neindexoval — `time-management-manazer-system-zarabaj-vs-buduj`
+  (crawl 26. 8.) a `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri`
+  (crawl 12. 8.). Ak ostanú vonku aj po requeste, nejde o rýchlosť crawlu,
+  ale o duplicitu voči indexovaným súrodencom — vtedy témy zlúčiť.
+- Nahrať na Websupport opravený
+  `prokrastinacia-v-praci-ked-vola-nestaci-potrebujes-system.html`
+  (nová meta description, 3 výskyty v súbore).
 - Zvážiť update modelu z `claude-opus-4-5` na `claude-opus-4-7`
   (alebo `claude-sonnet-4-6` pre úsporu).
+
+## Stav SEO (2. 9. 2026)
+Baseline 8. 6. 2026: 10 impresií/28 dní, 0 klikov, 3 indexované stránky.
+Stav 2. 9. 2026: 24 impresií/28 dní, 0 klikov, **19 z 22 URL indexovaných**.
+Kanonizácia z augusta zabrala. Rast impresií sa ale zastavil — 9 impresií
+za posledné dva týždne po sebe, bez zmeny.
+
+Hotové, nevracať sa k tomu:
+- `<title>` + meta description homepage prepísané.
+- Kanonizácia blogu — canonical sedí na všetkých kontrolovaných článkoch.
+- Anchor linky (`#ebooks`, `#about`, `#reviews`) sú zo sitemapy preč.
