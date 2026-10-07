@@ -80,15 +80,15 @@ pozíciách 27–45 a články si o ne navzájom konkurovali.
   Websupport (FTP / file manager) — repo ich nedeployuje.
 
 ## Pending
-- **Čaká sa na indexáciu.** 2. 9. 2026 podaný *Request indexing* na dva
-  články, ktoré Google crawloval a neindexoval —
-  `time-management-manazer-system-zarabaj-vs-buduj` (crawl 26. 8.) a
-  `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri` (crawl 12. 8.).
-  Skontrolovať 9. 9. 2026. Ak budú stále vonku, nejde o rýchlosť crawlu,
-  ale o to, že ich Google hodnotí ako duplicitu voči indexovaným
-  súrodencom (`time-management-manazer-10-hodin-...`,
-  `manazment-timu-preco-dobre-umysly-nestacia`) — vtedy témy zlúčiť,
-  nie request opakovať.
+- **Indexácia (overené 7. 10. 2026).** `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri`
+  je po requeste z 2. 9. zaindexovaný. `time-management-manazer-system-zarabaj-vs-buduj`
+  ostáva *Crawled – currently not indexed* (recrawl 2. 9.) → Google ho berie
+  ako duplicitu voči `time-management-manazer-10-hodin-...`. Zlúčenie
+  (301 redirect) Filip 7. 10. 2026 **zámerne nerieši** — v reportoch
+  neodporúčať znova, len evidovať stav.
+- Článok `ako-motivovat-zamestnancov-bez-penazi-pravda-z-praxe` priniesol
+  prvý klik (pozícia ~19) a kanibalizuje sa s `ako-motivovat-zamestnancov-co-funguje-...`.
+  Filip 7. 10. 2026 rozhodol nechať tak.
 - Ak sa raz bude znova púšťať jednorazovka nad `/web/blog/`, nech si nenechá
   `.bak` kópie vedľa článkov — sú verejne dostupné cez HTTP 200 a treba ich
   potom ručne mazať (`canonical_fix.php` ich takto nechal desať).
