@@ -3,8 +3,12 @@
  * masfilipa.sk — Blog Approval Webhook
  * Umiestni do: /web/approve_post.php
  *
- * Príjme GET request s action=approve|reject, slug a token.
- * Ak je token platný a action=approve, stiahne HTML z GitHub a uloží ho.
+ * Odkaz z e-mailu: ?action=approve|reject|feedback&slug=…&exp=…&token=…
+ * Token = HMAC(slug|action|exp), platí do exp (7 dní, viď generate_post.py).
+ *
+ * approve: GET len zobrazí potvrdzovacie tlačidlo, článok sa uloží až po POST.
+ * Obsah článku sa berie VÝHRADNE z last_post.json v repe, nikdy nie z URL —
+ * kto by mal odkaz, nesmie vedieť podstrčiť vlastné HTML.
  */
 
 // --- KONFIGURÁCIA ---
@@ -135,34 +139,39 @@ function regenerate_blog_index($posts) {
     log_msg("Listing v index.html prepísaný (" . count($posts) . " článkov)");
 }
 
-function verify_token($slug, $token, $secret) {
-    $expected = substr(hash_hmac('sha256', $slug, $secret), 0, 32);
+// Musí sedieť s generate_token() v generate_post.py.
+function verify_token($slug, $action, $exp, $token, $secret) {
+    $expected = substr(hash_hmac('sha256', "{$slug}|{$action}|{$exp}", $secret), 0, 32);
     return hash_equals($expected, $token);
-}
-
-function fetch_article_from_github($slug, $repo) {
-    // Stiahne posledný vygenerovaný post z GitHub Actions artifact
-    // Jednoduchšie riešenie: post data sú enkódované v URL parametri
-    return null;
 }
 
 // --- HLAVNÁ LOGIKA ---
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $slug   = isset($_GET['slug'])   ? preg_replace('/[^a-z0-9\-]/', '', $_GET['slug']) : '';
 $token  = isset($_GET['token'])  ? preg_replace('/[^a-f0-9]/', '', $_GET['token']) : '';
-$html_b64 = isset($_GET['html']) ? $_GET['html'] : '';
+$exp    = isset($_GET['exp'])    ? preg_replace('/[^0-9]/', '', $_GET['exp']) : '';
 
 // Validácia
-if (empty($action) || empty($slug) || empty($token)) {
+if (empty($action) || empty($slug) || empty($token) || $exp === '') {
     http_response_code(400);
     die('Neplatný request.');
 }
 
-if (!verify_token($slug, $token, $APPROVE_SECRET)) {
-    log_msg("UNAUTHORIZED: slug=$slug");
+if (!verify_token($slug, $action, $exp, $token, $APPROVE_SECRET)) {
+    log_msg("UNAUTHORIZED: action=$action slug=$slug");
     http_response_code(401);
     die('Neplatný token.');
 }
+
+if ((int)$exp < time()) {
+    log_msg("EXPIRED: action=$action slug=$slug");
+    http_response_code(410);
+    die('Platnosť odkazu vypršala.');
+}
+
+// Query string pre formuláre, ktoré posielajú POST na tú istú adresu.
+$self_query = '?action=' . urlencode($action) . '&slug=' . urlencode($slug)
+            . '&exp=' . urlencode($exp) . '&token=' . urlencode($token);
 
 log_msg("ACTION: $action | SLUG: $slug");
 
@@ -181,20 +190,36 @@ if ($action === 'reject') {
     exit;
 }
 
+if ($action === 'approve' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    // GET (klik v e-maile, prípadne prednačítanie odkazu poštovým klientom)
+    // nič nezapisuje — len zobrazí tlačidlo, ktoré pošle POST.
+    ?>
+    <!DOCTYPE html><html lang="sk"><head><meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <title>Pridať článok?</title>
+    <style>body{font-family:sans-serif;text-align:center;padding:60px;color:#333;}
+    h2{color:#0B3C49;}a{color:#0B3C49;}
+    button{margin-top:12px;padding:14px 28px;background:#0B3C49;color:#fff;border:none;border-radius:28px;font-size:16px;font-weight:bold;cursor:pointer;}</style></head><body>
+    <h2>Pridať článok na web?</h2>
+    <p>Článok: <strong><?= htmlspecialchars($slug) ?></strong></p>
+    <form method="post" action="<?= htmlspecialchars($self_query) ?>">
+      <button type="submit">✅ Áno, pridať na web</button>
+    </form>
+    <br><a href="https://masfilipa.sk">← Späť na masfilipa.sk</a>
+    </body></html>
+    <?php
+    exit;
+}
+
 if ($action === 'approve') {
-    // HTML príde ako base64 GET parameter (generátor ho pošle cez Brevo link)
-    if (empty($html_b64)) {
-        // Alternatíva: čítaj z GitHub API (last_post.json)
-        $api_url = "https://raw.githubusercontent.com/{$GITHUB_REPO}/main/last_post.json";
-        $json_raw = @file_get_contents($api_url);
-        if (!$json_raw) {
-            log_msg("ERROR: Nemôžem stiahnuť last_post.json z GitHub");
-            die('Chyba: Nemôžem načítať obsah článku.');
-        }
-        $post_data = json_decode($json_raw, true);
-    } else {
-        $post_data = json_decode(base64_decode($html_b64), true);
+    // Obsah článku len z repa (last_post.json commitne workflow), nikdy z requestu.
+    $api_url = "https://raw.githubusercontent.com/{$GITHUB_REPO}/main/last_post.json";
+    $json_raw = @file_get_contents($api_url);
+    if (!$json_raw) {
+        log_msg("ERROR: Nemôžem stiahnuť last_post.json z GitHub");
+        die('Chyba: Nemôžem načítať obsah článku.');
     }
+    $post_data = json_decode($json_raw, true);
 
     if (!isset($post_data['html']) || !isset($post_data['slug'])) {
         log_msg("ERROR: Neplatný post_data pre slug=$slug");
@@ -339,7 +364,7 @@ if ($action === 'feedback') {
     <h2>💬 Feedback k článku</h2>
     <p>Článok: <strong><?= htmlspecialchars($slug) ?></strong></p>
     <form method="post"
-          action="?action=feedback&slug=<?= urlencode($slug) ?>&token=<?= urlencode($token) ?>">
+          action="<?= htmlspecialchars($self_query) ?>">
       <textarea name="feedback_text"
                 placeholder="Napíš čo chceš zmeniť, napr: Článok nesmie prezrádzať obsah e-booku — iba naznačiť tému a presmerovať čitateľa na stiahnutie. Skráť sekciu o krokov ku koncu."></textarea>
       <p class="hint">Feedback bude pridaný k promptu a článok sa vygeneruje odznova.</p>

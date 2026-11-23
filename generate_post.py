@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import random
 import re
+import time
 import requests
 from datetime import datetime
 import anthropic
@@ -740,17 +741,30 @@ def fetch_related_posts(current_slug, ebook, count=3):
         print(f"Upozornenie: nepodarilo sa načítať related posts ({e})")
         return []
 
-def generate_token(slug):
-    """Vygeneruje bezpečný token pre schvaľovanie."""
+# Odkazy v schvaľovacom e-maile platia 7 dní — do ďalšieho pondelka.
+TOKEN_TTL_SECONDS = 7 * 24 * 3600
+
+def generate_token(slug, action, exp):
+    """HMAC nad slug|action|exp — musí sedieť s verify_token() v approve_post.php.
+
+    Token je viazaný na konkrétnu akciu a čas vypršania, takže starý alebo
+    preposlaný odkaz po týždni nefunguje a odkaz na zamietnutie sa nedá
+    použiť na schválenie.
+    """
     key = APPROVE_SECRET.encode()
-    msg = slug.encode()
+    msg = f"{slug}|{action}|{exp}".encode()
     return hmac.new(key, msg, hashlib.sha256).hexdigest()[:32]
 
-def send_approval_email(article, topic, slug, token, full_html, feedback=None):
+def action_url(slug, action, exp):
+    token = generate_token(slug, action, exp)
+    return f"{APPROVE_ENDPOINT}?action={action}&slug={slug}&exp={exp}&token={token}"
+
+def send_approval_email(article, topic, slug, full_html, feedback=None):
     """Pošle email s náhľadom a tlačidlami Pridať / Zamietnuť."""
-    approve_url   = f"{APPROVE_ENDPOINT}?action=approve&slug={slug}&token={token}"
-    reject_url    = f"{APPROVE_ENDPOINT}?action=reject&slug={slug}&token={token}"
-    feedback_url  = f"{APPROVE_ENDPOINT}?action=feedback&slug={slug}&token={token}"
+    exp = int(time.time()) + TOKEN_TTL_SECONDS
+    approve_url   = action_url(slug, 'approve', exp)
+    reject_url    = action_url(slug, 'reject', exp)
+    feedback_url  = action_url(slug, 'feedback', exp)
 
     # Full article text for email
     preview_text = re.sub(r'<[^>]+>', '', article['content_html'])
@@ -840,10 +854,8 @@ def main():
 
     slug = slugify(article['title'])
     date_str = datetime.now().strftime("%-d. %-m. %Y")
-    token = generate_token(slug)
 
     print(f"Slug: {slug}")
-    print(f"Token: {token[:8]}...")
 
     print("Načítavam súvisiace články...")
     related_posts = fetch_related_posts(slug, topic['ebook'])
@@ -864,15 +876,12 @@ def main():
 
     # Pošli email
     print("Posielam email...")
-    # Zakóduj HTML do base64 pre prenos cez URL (approve endpoint ho dostane z Brevo env)
-    import base64
-    encoded = base64.b64encode(json.dumps(post_data).encode()).decode()
-
-    # Ulož do súboru pre prípadné debugovanie
+    # approve_post.php berie obsah článku výhradne z last_post.json v repe
+    # (workflow ho commitne), nikdy nie z URL odkazu.
     with open('last_post.json', 'w', encoding='utf-8') as f:
         json.dump(post_data, f, ensure_ascii=False, indent=2)
 
-    send_approval_email(article, topic, slug, token, full_html, feedback=feedback)
+    send_approval_email(article, topic, slug, full_html, feedback=feedback)
     print("✅ Hotovo! Email odoslaný na schválenie.")
 
 if __name__ == '__main__':

@@ -80,6 +80,11 @@ pozíciách 27–45 a články si o ne navzájom konkurovali.
   Websupport (FTP / file manager) — repo ich nedeployuje.
 
 ## Pending
+- **Schvaľovacie odkazy (audit 23. 11. 2026, vetva `audit/2026-11-23`).**
+  Token je HMAC nad `slug|action|exp`, platí 7 dní; approve sa robí cez POST
+  z potvrdzovacej stránky a obsah sa berie len z `last_post.json`. Merge do
+  `main` a nahranie `approve_post.php` na Websupport musia ísť **spolu**
+  (mimo pondelka) — starý PHP nové odkazy odmietne a naopak.
 - **Indexácia (overené 7. 10. 2026).** `manazment-timu-5-chyb-ktore-robia-aj-skuseni-manazeri`
   je po requeste z 2. 9. zaindexovaný. `time-management-manazer-system-zarabaj-vs-buduj`
   ostáva *Crawled – currently not indexed* (recrawl 2. 9.) → Google ho berie
